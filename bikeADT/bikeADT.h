@@ -10,14 +10,16 @@
 
 typedef struct bikeCDT * bikeADT;
 
+enum order{NAME_ID = 0, ID_NAME};
+
 /**
- * @param stations matriz con las estaciones válidas.
- * 
- * @param order si order es 0, la 1ra columna es el id, la 2da el nombre. 1 si es viceversa.
+ * @param stations matriz con las estaciones válidas, se espera que sea de la forma de una matriz de strings, con un id y un nombre por estación.
+ * @param stationNbr cantidad de estaciones
+ * @param orderMatrix si order es 0, la 1ra columna es el id, la 2da el nombre. 1 si es viceversa.
  * @return Un ADT vacío que espera llenarse o NULL si fallo.
  * @brief Esta función debe ejecutarse al iniciar con este ADT.
 */
-bikeADT newBikeADT(char *** stations, size_t stationNbr, int order); // recibe un vector de estaciones validas
+bikeADT newBikeADT(char *** stations, size_t stationNbr, enum order orderMatrix); // recibe un vector de estaciones validas
 
 /**
  * @param bikes el ADT previamente inicializado con la función newBikeADT
