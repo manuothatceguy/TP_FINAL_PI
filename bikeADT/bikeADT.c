@@ -28,8 +28,24 @@ typedef struct day{
     size_t ended;       // Cantidad de viajes terminados en este día
 } tDay;
 
+typedef struct elemVec{  //estructura que define los elementos del vector.
+    size_t stationID; // ID de la estacion
+    char * name; // nombre de la estacion
+}elemVec;
+
 typedef struct bikeCDT{
+    elemVec *validStations;
     size_t stationCount;    // Cantidad de estaciones    
     tStation * stations;    // Vector de estaciones
     tDay days[NUM_DAYS];    // Vector de struct day 
 } bikeCDT;
+
+enum order{NAME_ID = 0, ID_NAME};
+
+static void matrixToElemVec()
+
+bikeADT newBikeADT(char *** stations, size_t stationNbr, int order){
+    bikeADT new = calloc(1,sizeof(bikeCDT));
+    new->stationCount = stationNbr;
+    matrixToElemVec(stations,new->validStations,order);
+}

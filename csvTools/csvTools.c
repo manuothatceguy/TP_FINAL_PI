@@ -13,15 +13,15 @@ static int checkErrno(void * ptr){
     return 0;
 }
                             
-char *** toMatrix(FILE * fp, unsigned int colNbr, char colsToFilter[], unsigned int * rowsNew){ // colNbr es la dimension de colsToFilter
+char *** toMatrix(FILE * fp, unsigned int colNbr, char colsToFilter[], unsigned int * rows){ // colNbr es la dimension de colsToFilter
 
     char row[MAXCHAR];
     char *token;
     int isFirstRow = 1; //Flag para no copiar la primera fila con los títulos
     char*** retMatrix = NULL;
-    int len = 0;    // Longitud del token copiado
+    int len;    // Longitud del token copiado
     int copy = 0;   // Cantidad de filas de la matriz destino
-    int col = 0;    // Indice de la columna de la matriz fuente.
+    int col;    // Indice de la columna de la matriz fuente.
     int newColDim = 0;  // Indice de la columna de la matriz destino.
     for(int i = 0; i < colNbr; i++){
         if(colsToFilter[i])
@@ -79,9 +79,24 @@ char *** toMatrix(FILE * fp, unsigned int colNbr, char colsToFilter[], unsigned 
             }
             token = strtok(NULL, ";");
         }
+        if (isFirstRow != 1) {
+            copy++;
+        }
+
         isFirstRow = 0; // apago flag
         
     }
-    *rowsNew = copy;    // Así se sabe hasta donde acceder, ya que la matriz no tiene marca de fin.
+    *rows = copy;    // Así se sabe hasta donde acceder, ya que la matriz no tiene marca de fin.
     return retMatrix;
+}
+
+void freeMatrix(char *** matrix, unsigned int rowNbr, unsigned int colNbr){
+    for(int i = 0; i < rowNbr; i++){
+        for(int j = 0; j < colNbr; j++){
+            free(matrix[i][j]);
+        }
+        free(matrix[i]);
+    }
+    free(matrix);
+    return;
 }
