@@ -56,9 +56,9 @@ Mkfile.old
 dkms.conf
 
 #carpetas auxiliares
-idea/
-idea/*
-vscode/
-vscode/*
+.idea/
+.idea/*
+.vscode/
+.vscode/*
 
 # End of https://www.toptal.com/developers/gitignore/api/c
