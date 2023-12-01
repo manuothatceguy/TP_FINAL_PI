@@ -10,9 +10,10 @@
 
 typedef struct bikeCDT * bikeADT;
 
-typedef struct elemVec{
-    size_t stationID;
-    char * name;
+
+typedef struct elemVec{  //estructura que define los elementos del vector.
+    size_t stationID; // ID de la estacion
+    char * name; // nombre de la estacion
 }elemVec;
 
 /**
@@ -20,7 +21,7 @@ typedef struct elemVec{
  * @return Un ADT vacío que espera llenarse
  * @brief Esta función debe ejecutarse al iniciar con este ADT.
 */
-bikeADT newBikeADT(elemVec validIDs[]);
+bikeADT newBikeADT(elemVec validIDs[]); // recibe un vector de estaciones validas
 
 /**
  * @param bikes el ADT previamente inicializado con la función newBikeADT
