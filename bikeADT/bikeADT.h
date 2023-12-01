@@ -16,7 +16,7 @@ typedef struct elemVec{
 }elemVec;
 
 /**
- * @param -
+ * @param validIDs arreglo de estaciones validas.
  * @return Un ADT vacío que espera llenarse
  * @brief Esta función debe ejecutarse al iniciar con este ADT.
 */
@@ -36,7 +36,7 @@ int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, cha
 
 /**
  * @param bikes el ADT previamente inicializado con la función newBikeADT
- * 
+ * @return matriz con la siguiente estructura: nombre_estacion | cant. de viajes de miembros | cant. de viajes de no miembros | cant. de viajes totales
  * 
  * 
  * 
