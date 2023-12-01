@@ -10,12 +10,17 @@
 
 typedef struct bikeCDT * bikeADT;
 
+typedef struct elemVec{
+    size_t stationID;
+    char * name;
+}elemVec;
+
 /**
  * @param -
  * @return Un ADT vacío que espera llenarse
  * @brief Esta función debe ejecutarse al iniciar con este ADT.
 */
-bikeADT newBikeADT(void);
+bikeADT newBikeADT(elemVec validIDs[]);
 
 /**
  * @param bikes el ADT previamente inicializado con la función newBikeADT
@@ -25,11 +30,20 @@ bikeADT newBikeADT(void);
  * @param endDate fecha y hora en la que se finalizó el viaje
  * @param isMember si el usuario es miembro del sistema o no.
  * @return 1 si se agregó, 0 si no se agregó
- * @brief Agrega un viaje, si alguna de las estaciones no existe las agrega.
- * 
+ * @brief Agrega un viaje, si alguna de las estaciones no existe las agrega. Se espera que se utilice esta función para la carga masiva de datos.
 */
 int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember);
 
+/**
+ * @param bikes el ADT previamente inicializado con la función newBikeADT
+ * 
+ * 
+ * 
+ * 
+ * 
+ * 
+*/
+unsigned int ** getTotalTrips(bikeADT bikes);
 
 
 #endif
