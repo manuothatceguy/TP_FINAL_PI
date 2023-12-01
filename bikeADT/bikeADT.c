@@ -1,4 +1,5 @@
 #include "bikeADT.h"
+#include "checkErrno/checkErrno.h"
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -42,48 +43,102 @@ typedef struct bikeCDT{
 
 enum order{NAME_ID = 0, ID_NAME};
 
+static int compareStations(tStation s1, tStation s2){
+    return s1.id - s2.id;
+}
+
+
 
 /**
  * @param stationsIpt estaciones a agregar
  * @param stationsOpt destino de las estaciones
  * @param orderMatrix si es nombre-id o id-nombre
  * @param stationNbr cantidad de estaciones a agregar
+ * @brief traduce la matriz de char *** al formato de tStation*
 */
-static void matrixToElemVec(char *** stationsIpt, tStation * stationsOpt, enum order orderMatrix, size_t stationNbr){
-    stationsOpt = malloc(stationNbr*sizeof(elemVec));
-    int name;
-    int id;
+static int matrixToElemVec(char *** stationsIpt, tStation * stationsOpt, enum order orderMatrix, size_t stationNbr){
+    stationsOpt = malloc(stationNbr*sizeof(tStation));
+    int nameIdx;
+    int idIdx;
 
     if(orderMatrix == 1){
-        name = 1;
-        id = 0;
+        nameIdx = 1;
+        idIdx = 0;
     }
     else{
-        name = 0;
-        id = 1;
+        nameIdx = 0;
+        idIdx = 1;
     }
     
     for(int i = 0; i < stationNbr; i++){
-        stationsOpt[i].name = malloc((strlen(stationsIpt[i][name]) + 1)*sizeof(char));
-        strcpy(stationsOpt[i].name,stationsIpt[i][name]);
-        stationsOpt[i].stationID = malloc(sizeof(int));
-        stationsOpt[i].stationID = atoi(stationsIpt[i][id]);
+        errno = 0;
+        stationsOpt[i].name = malloc((strlen(stationsIpt[i][nameIdx]) + 1)*sizeof(char));
+        if(checkErrno(stationsOpt[i].name)){
+            return 0;
+        }
+        strcpy(stationsOpt[i].name,stationsIpt[i][nameIdx]);
+        stationsOpt[i].id = atol(stationsIpt[i][idIdx]);
     }
+    // Ordeno para hacer búsqueda binaria
+    qsort(stationsOpt, stationNbr, sizeof(tStation), compareStations); 
+    return 1;
 }
 
 bikeADT newBikeADT(char *** stations, size_t stationNbr, enum order orderMatrix){
     bikeADT new = calloc(1,sizeof(bikeCDT));
     new->stationCount = stationNbr;
-    matrixToElemVec(stations,new->validStations,orderMatrix, stationNbr);
+    if(matrixToElemVec(stations,new->stations,orderMatrix, stationNbr) == 0){
+        return NULL;
+    }
     return new;
 }
 
-
-int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember)
-{
-    int foundStation = 0;
-    for(size_t i=0; i<bikes->stationCount && !foundStation; i++)
-    {
-        if( bikes->stations[i]->id )
+/**
+ * @param stations Vector de estaciones
+ * @param id ID de la estacion a buscar 
+ * @param dim Cantidad de estaciones en el vector stations
+ * @return 1 si existe la estacion, 0 de lo contrario
+ * @brief Como los IDs se encuentran ordenados, realiza busqueda binaria para verificar que existan ambas estaciones 
+*/
+static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim){
+    if(dim == 0)
+        return NULL;
+    if(stations[(int)(dim/2)].id > id){
+        return binarySearch(stations,id,(int)(dim/2));
+    } else if(stations[(int)(dim/2)].id < id){
+        return binarySearch(stations+(int)(dim/2),id,(int)(dim/2));
+    } else{
+        return stations;
     }
 }
+
+/**
+ * @param date1 Fecha a comparar 1
+ * @param date2 Fecha a comparar 2
+ * @return 1 si existe la estacion, 0 de lo contrario
+ * @brief Como los IDs se encuentran ordenados, realiza busqueda binaria para verificar que existan ambas estaciones 
+*/
+static int compareDates(date1, date2);
+
+/**
+ * @param stations Vector de estaciones
+ * @param id ID de la estacion a buscar 
+ * @param dim Cantidad de estaciones en el vector stations
+ * @return 1 si existe la estacion, 0 de lo contrario
+ * @brief Como los IDs se encuentran ordenados, realiza busqueda binaria para verificar que existan ambas estaciones 
+*/
+static void addTripRec(TList trips, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember){
+    // validar malloc!!
+    char c;
+    if( trips == NULL || (c=))
+
+}
+
+int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember){
+    tStation * foundStationFrom = binarySearch(bikes->stations, stationFrom, bikes->stationCount);
+    tStation * foundStationTo = binarySearch(bikes->stations, stationTo, bikes->stationCount);
+    if(foundStationFrom == NULL || foundStationTo == NULL )
+        return 0;
+    
+        
+    }
