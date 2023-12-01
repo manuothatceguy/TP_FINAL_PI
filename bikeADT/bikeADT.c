@@ -41,13 +41,9 @@ typedef struct bikeCDT{
     tDay days[NUM_DAYS];    // Vector de struct day 
 } bikeCDT;
 
-enum order{NAME_ID = 0, ID_NAME};
-
 static int compareStations(tStation s1, tStation s2){
     return s1.id - s2.id;
 }
-
-
 
 /**
  * @param stationsIpt estaciones a agregar
@@ -88,7 +84,7 @@ bikeADT newBikeADT(char *** stations, size_t stationNbr, enum order orderMatrix)
     bikeADT new = calloc(1,sizeof(bikeCDT));
     new->stationCount = stationNbr;
     if(matrixToElemVec(stations,new->stations,orderMatrix, stationNbr) == 0){
-        return NULL;
+        return NULL; // Si falla la asignación de memoria dinámica, retorno null
     }
     return new;
 }
@@ -115,17 +111,21 @@ static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim)
 /**
  * @param date1 Fecha a comparar 1
  * @param date2 Fecha a comparar 2
- * @return 1 si existe la estacion, 0 de lo contrario
- * @brief Como los IDs se encuentran ordenados, realiza busqueda binaria para verificar que existan ambas estaciones 
+ * @return >0 si date1 > date2, =0 si date1 = date2, <0 si date1 < date2
+ * @brief Compara las fechas date1 y date2
 */
-static int compareDates(date1, date2);
+static int compareDates(date1, date2){
+    
+}
 
 /**
- * @param stations Vector de estaciones
- * @param id ID de la estacion a buscar 
- * @param dim Cantidad de estaciones en el vector stations
- * @return 1 si existe la estacion, 0 de lo contrario
- * @brief Como los IDs se encuentran ordenados, realiza busqueda binaria para verificar que existan ambas estaciones 
+ * @param trips Vector de estaciones
+ * @param stationFrom ID de la estacion de origen
+ * @param stationTo ID de la estacion de destino
+ * @param startDate fecha y hora en la que se inició el viaje
+ * @param endDate fecha y hora en la que se finalizó el viaje
+ * @param isMember si el usuario es miembro del sistema o no.
+ * @brief Agrega recursivamente a la lista ordenada cronologicamente un trip  
 */
 static void addTripRec(TList trips, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember){
     // validar malloc!!
