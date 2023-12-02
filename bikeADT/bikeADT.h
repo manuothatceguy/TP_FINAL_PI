@@ -52,7 +52,7 @@ struct tripCounter{
 struct tripCounter * getTotalTrips(bikeADT bikes);
 
 /**
- * @param bikes memoria reservada a liberar
+ * @param bikes memoria reservada del ADT a liberar
  * @brief libera la memoria reservada
 */
 void freeBikes(bikeADT bikes);
