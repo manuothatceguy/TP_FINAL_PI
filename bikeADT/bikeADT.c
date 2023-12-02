@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <time.h>
 
 #define NUM_DAYS 7
 enum days{MON=0,TUE,WED,THU,FRI,SAT,SUN};
@@ -108,14 +109,27 @@ static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim)
     }
 }
 
+static int strToTime(struct tm *d, char * date, char * format){
+    return sscanf(date,format,&d->tm_year, &d->tm_mon, &d->tm_mday, &d->tm_hour, &d->tm_min, &d->tm_sec);
+}
+
+
 /**
  * @param date1 Fecha a comparar 1
  * @param date2 Fecha a comparar 2
  * @return >0 si date1 > date2, =0 si date1 = date2, <0 si date1 < date2
  * @brief Compara las fechas date1 y date2
 */
-static int compareDates(date1, date2){
-    
+static int compareDates(char * date1, char * date2, char * formato){
+    struct tm d1;
+    struct tm d2;
+    // Conversión de char * al struct tm de la librería time.h
+    strToTime(&d1,date1,formato);
+    strToTime(&d2,date2,formato);
+    // Conversión del struct tm a un time_t (necesario para difftime)
+    time_t a = mktime(&d1);
+    time_t b = mktime(&d2);
+    return difftime(a,b);
 }
 
 /**
@@ -129,8 +143,11 @@ static int compareDates(date1, date2){
 static TList addTripRec(TList trips, unsigned int stationTo, char * startDate, char * endDate){
     char c;
     if( trips == NULL || (c=compareDates(startDate, trips->dateStart) < 0)){
+        errno = 0;
         TList aux = malloc(sizeof(tTrip));
-        // VALIDAR EL MALLOC !!!!! SIN FALTA
+        if(checkErrno(aux)){
+            return NULL;
+        }
         aux->dateStart = startDate;
         aux->dateEnd = endDate;
         aux->destName = stationTo;
@@ -150,12 +167,13 @@ int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, cha
         return 0;
     }
 
-    bikes->stations->trips = addTripRec(bikes->stations, stationTo, startDate, endDate);
-
-    if( isMember ){
-        bikes->stations->memberTripCount++;
-    } else {
-        bikes->stations->notMemberTripCount++;
-    }
-    return 1;
+    // bikes->stations->trips = addTripRec(bikes->stations, stationTo, startDate, endDate);
+    // Falta el índice de la estación!!!!!!!!!!!!!!
+    
+    // if( isMember ){
+    //     bikes->stations->memberTripCount++;
+    // } else {
+    //     bikes->stations->notMemberTripCount++;
+    // }
+    // return 1;
 }
