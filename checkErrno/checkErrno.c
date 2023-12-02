@@ -1,4 +1,5 @@
 #include "checkErrno.h"
+#include <stdlib.h>
 
 static int checkErrno(void * ptr){
     if(ptr == NULL || errno == ENOMEM){
