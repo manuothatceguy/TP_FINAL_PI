@@ -1,6 +1,10 @@
 /**
  * ARCHIVO DE ENCABEZADO PARA EL TIPO ABSTRACTO DE DATO 
  * PARA PROCESAR DATOS DE ALQUILERES DE BICICLETAS
+ * 
+ * Autores: Manuel Othatceguy 64671, 
+ *          Santiago Sanchez Marostica 64056,
+ *          Gregorio Tiscornia 64087
 */
 
 #include <stdio.h>
@@ -33,16 +37,23 @@ bikeADT newBikeADT(char *** stations, size_t stationNbr, enum order orderMatrix)
 */
 int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember);
 
+struct tripCounter{
+    char * stationName;
+    size_t memberTrips;
+    size_t nonMemberTrips;
+    size_t allTrips;
+};
+
 /**
+ * QUERY 1
  * @param bikes el ADT previamente inicializado con la función newBikeADT
- * @return matriz con la siguiente estructura: nombre_estacion | cant. de viajes de miembros | cant. de viajes de no miembros | cant. de viajes totales
- * 
- * 
- * 
- * 
- * 
+ * @return vector de struct tripCounter
 */
-unsigned int ** getTotalTrips(bikeADT bikes);
+struct tripCounter * getTotalTrips(bikeADT bikes);
 
-
+/**
+ * @param bikes memoria reservada a liberar
+ * @brief libera la memoria reservada
+*/
+void freeBikes(bikeADT bikes);
 #endif
