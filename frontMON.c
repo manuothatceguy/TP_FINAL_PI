@@ -28,8 +28,8 @@ int main(int argc, char const *argv[])
         char filtroStations[] = {1,1,0,0}; // Porque solamente se necesitan las columnas del nombre y del id
         char filtroTrips[] = {1,1,1,1,1}; // Porque necesito todas las columnas, en NYC no necesitaría el tipo de bicicleta, por ejemplo.
         
-        int stationsNum = 0;
-        int tripNum = 0;
+        unsigned int stationsNum = 0;
+        unsigned int tripNum = 0;
 
         char *** stationsFilter = toMatrix(stations,CANT_COLS_STATIONS_CSV,filtroStations,&stationsNum);
         char *** tripsFilter = toMatrix(bikes,5,filtroTrips,&tripNum);
@@ -39,7 +39,7 @@ int main(int argc, char const *argv[])
             exit(4);
         }
         
-        int j = 0;
+        int j;
 
         for(int i = 0; i < tripNum; i++){
             j = addTrip(bikesMon,atoi(tripsFilter[i][ID_START]),atoi(tripsFilter[i][ID_END]),tripsFilter[i][START_DATE],tripsFilter[i][END_DATE],*tripsFilter[i][MEMBER_STATUS]);
@@ -51,7 +51,7 @@ int main(int argc, char const *argv[])
         
         htmlTable tableForQ1 = newTable("query1.html",4,"bikeStation","memberTrips","casualTrips","allTrips");
         for(int i = 0; i < tripNum; i++){
-            char table[4][50];
+            char table[4][50]; // ojo que aca hay "magic numbers "  mejor poner defines y usarlos ahi
             sprintf(table[0],"%s",query1[i].stationName);
             sprintf(table[1],"%ld",query1[i].memberTrips);
             sprintf(table[2],"%ld",query1[i].nonMemberTrips);
