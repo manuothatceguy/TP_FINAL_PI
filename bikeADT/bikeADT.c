@@ -142,7 +142,7 @@ static int compareDates(char * date1, char * date2, char * formato){
 */
 static TList addTripRec(TList trips, unsigned int stationTo, char * startDate, char * endDate){
     char c;
-    if( trips == NULL || (c=compareDates(startDate, trips->dateStart) < 0)){
+    if( trips == NULL || ((c=compareDates(startDate, trips->dateStart, "&d-&d-&d &d:&d:&d")) < 0)){
         errno = 0;
         TList aux = malloc(sizeof(tTrip));
         if(checkErrno(aux)){
@@ -168,7 +168,6 @@ int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, cha
     }
 
     foundStationFrom->trips = addTripRec(foundStationFrom->trips,stationTo,startDate,endDate);
-
 
     // for(int i = 0; i < bikes->stationCount; i++){
     //     if(bikes->stations[i].id == stationFrom){
