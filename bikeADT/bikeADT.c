@@ -124,21 +124,37 @@ static int compareDates(date1, date2){
  * @param stationTo ID de la estacion de destino
  * @param startDate fecha y hora en la que se inició el viaje
  * @param endDate fecha y hora en la que se finalizó el viaje
- * @param isMember si el usuario es miembro del sistema o no.
  * @brief Agrega recursivamente a la lista ordenada cronologicamente un trip  
 */
-static void addTripRec(TList trips, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember){
-    // validar malloc!!
+static TList addTripRec(TList trips, unsigned int stationTo, char * startDate, char * endDate){
     char c;
-    if( trips == NULL || (c=))
-
+    if( trips == NULL || (c=compareDates(startDate, trips->dateStart) < 0)){
+        TList aux = malloc(sizeof(tTrip));
+        aux->dateStart = startDate;
+        aux->dateEnd = endDate;
+        aux->destName = stationTo;
+        aux->tail = trips;
+        return aux;
+    } else // Si son iguales agrego despues (orden de procesado)
+    {
+        addTripRec(trips->tail, stationTo, startDate, endDate);
+        return trips;
+    }
 }
 
 int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember){
     tStation * foundStationFrom = binarySearch(bikes->stations, stationFrom, bikes->stationCount);
     tStation * foundStationTo = binarySearch(bikes->stations, stationTo, bikes->stationCount);
-    if(foundStationFrom == NULL || foundStationTo == NULL )
+    if(foundStationFrom == NULL || foundStationTo == NULL ){
         return 0;
-    
-        
     }
+
+    bikes->stations->trips = addTripRec(bikes->stations, stationTo, startDate, endDate);
+
+    if( isMember ){
+        bikes->stations->memberTripCount++;
+    } else {
+        bikes->stations->notMemberTripCount++;
+    }
+    return 1;
+}
