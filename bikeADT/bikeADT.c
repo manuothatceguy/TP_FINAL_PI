@@ -130,6 +130,7 @@ static TList addTripRec(TList trips, unsigned int stationTo, char * startDate, c
     char c;
     if( trips == NULL || (c=compareDates(startDate, trips->dateStart) < 0)){
         TList aux = malloc(sizeof(tTrip));
+        // VALIDAR EL MALLOC !!!!! SIN FALTA
         aux->dateStart = startDate;
         aux->dateEnd = endDate;
         aux->destName = stationTo;
