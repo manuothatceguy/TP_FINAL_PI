@@ -167,13 +167,28 @@ int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, cha
         return 0;
     }
 
+    foundStationFrom->trips = addTripRec(foundStationFrom->trips,stationTo,startDate,endDate);
+
+
+    // for(int i = 0; i < bikes->stationCount; i++){
+    //     if(bikes->stations[i].id == stationFrom){
+    //         bikes->stations[i].trips = addTripRec(bikes->stations[i].trips,stationTo,startDate,endDate);
+    //         if(isMember){
+    //             bikes->stations[i].memberTripCount++;
+    //         }
+    //         else{
+    //             bikes->stations[i].notMemberTripCount++;
+    //         }
+            
+    //     }
+    // }
     // bikes->stations->trips = addTripRec(bikes->stations, stationTo, startDate, endDate);
     // Falta el índice de la estación!!!!!!!!!!!!!!
     
-    // if( isMember ){
-    //     bikes->stations->memberTripCount++;
-    // } else {
-    //     bikes->stations->notMemberTripCount++;
-    // }
-    // return 1;
+    if( isMember ){
+        foundStationFrom->memberTripCount++;
+    } else {
+        foundStationFrom->notMemberTripCount++;
+    }
+    return 1;
 }
