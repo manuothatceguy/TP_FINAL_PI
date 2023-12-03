@@ -6,7 +6,7 @@
 #include <time.h>
 
 #define NUM_DAYS 7
-enum days{MON=0,TUE,WED,THU,FRI,SAT,SUN};
+enum days{SUN=0,MON,TUE,WED,THU,FRI,SAT}; // En el formato según time.h
 
 typedef struct trip{
     char * dateStart;   // Fecha en la que se comenzó a utilizar la bicicleta
