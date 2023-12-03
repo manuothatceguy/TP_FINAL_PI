@@ -61,4 +61,7 @@ dkms.conf
 .vscode/
 .vscode/*
 
+#Source files
+*.csv
+
 # End of https://www.toptal.com/developers/gitignore/api/c
