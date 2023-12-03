@@ -2,6 +2,7 @@
 #include "../checkErrno/checkErrno.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
 #include <time.h>
 
@@ -73,7 +74,7 @@ static int matrixToElemVec(char *** stationsIpt, tStation * stationsOpt, enum or
         stationsOpt[i].id = atol(stationsIpt[i][idIdx]);
     }
     // Ordeno para hacer búsqueda binaria
-    qsort(stationsOpt, stationNbr, sizeof(tStation), compareStations); 
+    qsort(stationsOpt, stationNbr, sizeof(tStation), (int (*)(const void *, const void *))compareStations); 
     return 1;
 }
 
@@ -120,7 +121,7 @@ static int strToTime(struct tm *d, char * date, char * format){
 */
 static TList addTripRec(TList trips, char * stationTo, size_t stationToId, size_t stationFrom, time_t startDate, time_t endDate, int * flag){
     char c;
-    if( trips == NULL || (((c=difftime(startDate,trips->dateStart))) < 0) && (stationToId != stationFrom)){
+    if( trips == NULL || ((((c=difftime(startDate,trips->dateStart))) < 0) && (stationToId != stationFrom))){
         errno = 0;
         TList aux = malloc(sizeof(tTrip));
         if(checkErrno(aux)){
@@ -222,7 +223,7 @@ struct oldestTrip * getOldestTrips(bikeADT bikes){
         if(checkErrno(retArray[i].stationTo)){
             return NULL;
         }
-        strcpy(retArray[i].stationTo,bikes->stations[i].trips->dateEnd);
+        strcpy(retArray[i].stationTo,bikes->stations[i].trips->destName);
 
         struct tm * d = gmtime(&(bikes->stations[i].trips->dateStart));
         errno = 0;

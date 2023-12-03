@@ -1,7 +1,8 @@
 #include "checkErrno.h"
 #include <stdlib.h>
+#include <errno.h>
 
-static int checkErrno(void * ptr){
+int checkErrno(void * ptr){
     if(ptr == NULL || errno == ENOMEM){
         errno = ENOMEM;
         return 1;

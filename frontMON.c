@@ -11,7 +11,7 @@
 #define COLS_QUERY_2 3
 #define COLS_QUERY_3 3
 #define DAYS_IN_WEEK 7
-#define CONVERSION(x) ((x)+1)%7  // Debido al formato del time.h
+#define CONVERSION(x) ((x)+1)%7  // Debido al formato del time.h para que el primero sea el LUNES
 
 enum posInCsv {START_DATE = 0, ID_START, END_DATE, ID_END, MEMBER_STATUS};
 
@@ -95,7 +95,6 @@ int main(int argc, char const *argv[])
             sprintf(ended,"%ld",query3[CONVERSION(i)].ended);
             addHTMLRow(tableForQ3,days[i],started,ended);
         }
-
         
         for(int i = 0; i < stationsNum; i++){
             free(query1[i].stationName);
@@ -106,8 +105,8 @@ int main(int argc, char const *argv[])
 
         free(query1);
         free(query2);
-        closeHTMLTable(query1);
-        closeHTMLTable(query2);
+        closeHTMLTable(tableForQ1);
+        closeHTMLTable(tableForQ2);
         freeBikes(bikesMon);
         fclose(bikes);
         fclose(stations);
