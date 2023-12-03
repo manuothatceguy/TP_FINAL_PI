@@ -6,6 +6,7 @@
 
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESMON_CSV 5
+#define MAXCHARS 50 // Para el sprintf. Tope arbitrario.
 
 enum posInCsv {START_DATE = 0, ID_START, END_DATE, ID_END, MEMBER_STATUS};
 
@@ -51,7 +52,7 @@ int main(int argc, char const *argv[])
         
         htmlTable tableForQ1 = newTable("query1.html",4,"bikeStation","memberTrips","casualTrips","allTrips");
         for(int i = 0; i < tripNum; i++){
-            char table[4][50]; // ojo que aca hay "magic numbers "  mejor poner defines y usarlos ahi
+            char table[CANT_COLS_STATIONS_CSV][MAXCHARS]; 
             sprintf(table[0],"%s",query1[i].stationName);
             sprintf(table[1],"%ld",query1[i].memberTrips);
             sprintf(table[2],"%ld",query1[i].nonMemberTrips);
