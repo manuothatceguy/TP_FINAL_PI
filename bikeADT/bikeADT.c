@@ -7,10 +7,12 @@
 
 #define NUM_DAYS 7
 enum days{SUN=0,MON,TUE,WED,THU,FRI,SAT}; // En el formato según time.h
+#define CONVERSION(x) ((x)+1)%7  // Debido al formato del time.h
+#define LEN_DATE_Q2 17 // El formato de fecha que se retorna en el query 2 tiene una longitud de 17 caracteres 
 
 typedef struct trip{
-    char * dateStart;   // Fecha en la que se comenzó a utilizar la bicicleta
-    char * dateEnd;     // Fecha en la que se regreso la bicicleta
+    time_t dateStart;   // Fecha en la que se comenzó a utilizar la bicicleta
+    time_t dateEnd;     // Fecha en la que se regreso la bicicleta
     char * destName;    // Nombre del destino donde se dejo la bicicleta
     struct trip * tail; // Puntero al siguiente viaje
 } tTrip;
@@ -21,15 +23,10 @@ typedef struct station{
     char * name;                // Nombre de la estación
     size_t id;                  // Id de la estación
 
-    TList trips;                // Lista de viajes con origen en esta estación ordenados ascendente por fecha
+    TList trips;                // Lista de viajes con origen en esta estación ordenados cronologicamente
     size_t memberTripCount;     // Cantidad de viajes de usuarios que son miembros con origen en esta estación
     size_t notMemberTripCount;  // Cantidad de viajes de usuarios que no son miembros con origen en esta estación
 } tStation;
-
-typedef struct day{
-    size_t started;     // Cantidad de viajes iniciados en este día
-    size_t ended;       // Cantidad de viajes terminados en este día
-} tDay;
 
 // typedef struct elemVec{  //estructura que define los elementos del vector.
 //     size_t stationID; // ID de la estacion
@@ -110,26 +107,8 @@ static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim)
 }
 
 static int strToTime(struct tm *d, char * date, char * format){
+    d->tm_isdst=0; // necesario para que funcione la libreria time.h
     return sscanf(date,format,&d->tm_year, &d->tm_mon, &d->tm_mday, &d->tm_hour, &d->tm_min, &d->tm_sec);
-}
-
-
-/**
- * @param date1 Fecha a comparar 1
- * @param date2 Fecha a comparar 2
- * @return >0 si date1 > date2, =0 si date1 = date2, <0 si date1 < date2
- * @brief Compara las fechas date1 y date2
-*/
-static int compareDates(char * date1, char * date2, char * formato){
-    struct tm d1;
-    struct tm d2;
-    // Conversión de char * al struct tm de la librería time.h
-    strToTime(&d1,date1,formato);
-    strToTime(&d2,date2,formato);
-    // Conversión del struct tm a un time_t (necesario para difftime)
-    time_t a = mktime(&d1);
-    time_t b = mktime(&d2);
-    return difftime(a,b);
 }
 
 /**
@@ -140,9 +119,9 @@ static int compareDates(char * date1, char * date2, char * formato){
  * @param endDate fecha y hora en la que se finalizó el viaje
  * @brief Agrega recursivamente a la lista ordenada cronologicamente un trip  
 */
-static TList addTripRec(TList trips, unsigned int stationTo, char * startDate, char * endDate){
+static TList addTripRec(TList trips, char * stationTo, size_t stationToId, size_t stationFrom, time_t startDate, time_t endDate, int * flag){
     char c;
-    if( trips == NULL || ((c=compareDates(startDate, trips->dateStart, "&d-&d-&d &d:&d:&d")) < 0)){
+    if( trips == NULL || (((c=difftime(startDate,trips->dateStart))) < 0) && (stationToId != stationFrom)){
         errno = 0;
         TList aux = malloc(sizeof(tTrip));
         if(checkErrno(aux)){
@@ -150,44 +129,130 @@ static TList addTripRec(TList trips, unsigned int stationTo, char * startDate, c
         }
         aux->dateStart = startDate;
         aux->dateEnd = endDate;
-        aux->destName = stationTo;
+        
+        errno = 0;
+        aux->destName = malloc(strlen(stationTo) + 1);
+        if(checkErrno(aux->destName)){
+            *flag = 1;
+        }
+        strcpy(aux->destName,stationTo);
         aux->tail = trips;
         return aux;
     } else // Si son iguales agrego despues (orden de procesado)
     {
-        addTripRec(trips->tail, stationTo, startDate, endDate);
+        addTripRec(trips->tail, stationTo, stationToId, stationFrom, startDate, endDate, flag);
         return trips;
     }
 }
 
-int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember){
+int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDateStr, char * endDateStr, char isMember){
     tStation * foundStationFrom = binarySearch(bikes->stations, stationFrom, bikes->stationCount);
     tStation * foundStationTo = binarySearch(bikes->stations, stationTo, bikes->stationCount);
     if(foundStationFrom == NULL || foundStationTo == NULL ){
         return 0;
     }
+    struct tm startDateTm, endDateTm;
+    int val = 0;
 
-    foundStationFrom->trips = addTripRec(foundStationFrom->trips,stationTo,startDate,endDate);
+    val = strToTime(&startDateTm,startDateStr,"&d-&d-&d &d:&d:&d");
+    if(val != 6)
+        return 0;
+    time_t startDate = mktime(&startDateTm);
 
-    // for(int i = 0; i < bikes->stationCount; i++){
-    //     if(bikes->stations[i].id == stationFrom){
-    //         bikes->stations[i].trips = addTripRec(bikes->stations[i].trips,stationTo,startDate,endDate);
-    //         if(isMember){
-    //             bikes->stations[i].memberTripCount++;
-    //         }
-    //         else{
-    //             bikes->stations[i].notMemberTripCount++;
-    //         }
-            
-    //     }
-    // }
-    // bikes->stations->trips = addTripRec(bikes->stations, stationTo, startDate, endDate);
-    // Falta el índice de la estación!!!!!!!!!!!!!!
-    
+    val = strToTime(&endDateTm,endDateStr,"&d-&d-&d &d:&d:&d");
+    if(val != 6)
+        return 0;
+    time_t endDate = mktime(&endDateTm);
+    int flag = 0;
+    foundStationFrom->trips = addTripRec(foundStationFrom->trips,foundStationTo->name,stationTo,foundStationFrom->id,startDate,endDate,&flag);
+    if(flag){
+
+    }
     if( isMember ){
         foundStationFrom->memberTripCount++;
     } else {
         foundStationFrom->notMemberTripCount++;
     }
+
+    struct tm * ansStart = gmtime(&startDate); //completa los campos tm_wday y tm_yday no completados en el original
+    bikes->days[ansStart->tm_wday].started++; // para el QUERY 3
+    
+    struct tm * ansEnd = gmtime(&endDate);
+    bikes->days[ansEnd->tm_wday].ended++;
+    
     return 1;
+}
+
+struct tripCounter * getTotalTrips(bikeADT bikes){
+    errno = 0;
+    struct tripCounter * retArray = malloc(sizeof(struct tripCounter)*bikes->stationCount);
+    if(checkErrno(retArray)){
+        return NULL;
+    }
+    
+    for(size_t i=0; i<bikes->stationCount; i++){
+        retArray[i].memberTrips = bikes->stations[i].memberTripCount;
+        retArray[i].nonMemberTrips = bikes->stations[i].notMemberTripCount;
+        retArray[i].allTrips = retArray[i].memberTrips + retArray[i].nonMemberTrips;
+        retArray[i].stationName = malloc(strlen(bikes->stations[i].name) + 1);
+        if(checkErrno(retArray[i].stationName)){
+            return NULL;
+        }
+        strcpy(retArray[i].stationName, bikes->stations[i].name);
+    }
+
+    return retArray;
+}
+
+struct oldestTrip * getOldestTrips(bikeADT bikes){
+    struct oldestTrip * retArray = malloc(bikes->stationCount*sizeof(struct oldestTrip));
+    int len;
+
+    for(int i = 0; i < bikes->stationCount; i++){
+        len = strlen(bikes->stations[i].name);
+        errno = 0;
+        retArray[i].stationFrom = malloc((len+1)*sizeof(char));
+        if(checkErrno(retArray[i].stationFrom)){
+            return NULL;
+        }
+        strcpy(retArray[i].stationFrom,bikes->stations[i].name);
+        
+        len = strlen(bikes->stations[i].trips->destName);
+        errno = 0;
+        retArray[i].stationTo = malloc((len+1)*sizeof(char));
+        if(checkErrno(retArray[i].stationTo)){
+            return NULL;
+        }
+        strcpy(retArray[i].stationTo,bikes->stations[i].trips->dateEnd);
+
+        struct tm * d = gmtime(&(bikes->stations[i].trips->dateStart));
+        errno = 0;
+        retArray[i].dateTime = malloc(LEN_DATE_Q2*sizeof(char));
+        if(checkErrno(retArray[i].dateTime)){
+            return NULL;
+        }
+        strftime(retArray[i].dateTime,LEN_DATE_Q2,"%d/%m/%Y %H:%M",d);
+    }
+    return retArray;
+}
+
+tDay * tripsPerDay(bikeADT bikes){
+    return bikes->days;
+}
+
+static void freeRec(TList list){
+    if(list == NULL){
+        return;
+    }
+    free(list->tail);
+    free(list->destName);
+    free(list);
+}
+
+void freeBikes(bikeADT bikes){
+    for(int i = 0 ; i < bikes->stationCount; i++){
+        freeRec(bikes->stations[i].trips);
+        free(bikes->stations[i].name);
+    }
+    free(bikes);
 }

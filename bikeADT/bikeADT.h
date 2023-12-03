@@ -46,14 +46,40 @@ struct tripCounter{
 
 /**
  * QUERY 1
- * @param bikes el ADT previamente inicializado con la función newBikeADT
+ * @param bikes el TAD previamente inicializado con la función newBikeADT
  * @return vector de struct tripCounter
 */
 struct tripCounter * getTotalTrips(bikeADT bikes);
 
+struct oldestTrip{
+    char * stationFrom;
+    char * stationTo;
+    char * dateTime; // En formato "DD/MM/YYYY HH:MM"
+};
+
 /**
- * @param bikes memoria reservada del ADT a liberar
+ * QUERY 2
+ * @param bikes TAD creado previamente
+ * @return vector de struct oldestTrip o NULL si fallo
+*/
+struct oldestTrip * getOldestTrips(bikeADT bikes);
+
+typedef struct day{
+    size_t started;     // Cantidad de viajes iniciados en este día
+    size_t ended;       // Cantidad de viajes terminados en este día
+} tDay;
+
+/**
+ * QUERY 3
+ * @param bikes TAD
+ * @return vector de 7 tDay con idx 0 = DOMINGO
+*/
+tDay * tripsPerDay(bikeADT bikes);
+
+/**
+ * @param bikes TAD a liberar
  * @brief libera la memoria reservada
 */
 void freeBikes(bikeADT bikes);
+
 #endif

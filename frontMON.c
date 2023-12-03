@@ -7,6 +7,10 @@
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESMON_CSV 5
 #define MAXCHARS 50 // Para el sprintf. Tope arbitrario.
+#define COLS_QUERY_1 4
+#define COLS_QUERY_2 3
+#define COLS_QUERY_3 3
+
 
 enum posInCsv {START_DATE = 0, ID_START, END_DATE, ID_END, MEMBER_STATUS};
 
@@ -49,17 +53,45 @@ int main(int argc, char const *argv[])
         }
 
         struct tripCounter * query1 = getTotalTrips(bikesMon);
+        if(query1 == NULL){
+            fprintf(stderr,"Error al realizar query 1");
+            exit(3);
+        }
         
-        htmlTable tableForQ1 = newTable("query1.html",4,"bikeStation","memberTrips","casualTrips","allTrips");
+        htmlTable tableForQ1 = newTable("query1.html",COLS_QUERY_1,"bikeStation","memberTrips","casualTrips","allTrips");
         for(int i = 0; i < tripNum; i++){
             char table[CANT_COLS_STATIONS_CSV][MAXCHARS]; 
             sprintf(table[0],"%s",query1[i].stationName);
             sprintf(table[1],"%ld",query1[i].memberTrips);
             sprintf(table[2],"%ld",query1[i].nonMemberTrips);
             sprintf(table[3],"%ld",query1[i].allTrips);
-            addHTMLRow(table[0],table[1],table[2],table[3]);
+            addHTMLRow(tableForQ1,table[0],table[1],table[2],table[3]);
         }
+        
+        struct oldestTrip * query2 = getOldestTrips(bikesMon);
+        if(query2 == NULL){
+            fprintf(stderr,"Error al realizar query 2");
+        }
+        
+        htmlTable tableForQ2 = newTable("query2.html",COLS_QUERY_2,"bikeStation","bikeEndStation","oldestDateTime");
+        for(int i = 0; i < stationsNum; i++){
+            addHTMLRow(tableForQ2,query2->stationFrom,query2->stationTo,query2->dateTime);
+        }
+        
+        htmlTable tableForQ3 = newTable("query3.html",COLS_QUERY_3,"weekDay","startedTrips","endedTrips");
+
+        
+        for(int i = 0; i < stationsNum; i++){
+            free(query1[i].stationName);
+            free(query2[i].stationFrom);
+            free(query2[i].stationTo);
+            free(query2[i].dateTime);
+        }
+
+        free(query1);
+        free(query2);
         closeHTMLTable(query1);
+        closeHTMLTable(query2);
         freeBikes(bikesMon);
         fclose(bikes);
         fclose(stations);
