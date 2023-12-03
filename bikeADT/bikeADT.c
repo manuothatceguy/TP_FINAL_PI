@@ -7,7 +7,6 @@
 
 #define NUM_DAYS 7
 enum days{SUN=0,MON,TUE,WED,THU,FRI,SAT}; // En el formato según time.h
-#define CONVERSION(x) ((x)+1)%7  // Debido al formato del time.h
 #define LEN_DATE_Q2 17 // El formato de fecha que se retorna en el query 2 tiene una longitud de 17 caracteres 
 
 typedef struct trip{
