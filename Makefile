@@ -1,5 +1,5 @@
 CC = gcc
-CFLAGS = -Wall -pedantic -std=c99 -fsanitize=address
+CFLAGS = -Wall -pedantic -std=c99 -fsanitize=address -g
 SRCDIR = source_files
 INCDIR = header_files
 OBJDIR = obj
