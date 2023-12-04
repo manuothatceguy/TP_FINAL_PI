@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "bikeADT.h" // despues arreglar estilo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#include "csvTools.h"    // tambien revisar estiloo!!!!!!!!!!!!!!!!
+#include "bikeADT.h" 
+#include "csvTools.h"  
 #include "htmlTable.h"
 #include "checkErrno.h"
 
@@ -24,7 +24,7 @@ stationInput * matrixToInput(char ***stations, int num);
 int main(int argc, char const *argv[])
 {
     if(argc < 2 || argc > 4){
-        fprintf(stderr,"Error de argumentos");
+        fprintf(stderr,"Error de argumentos\n");
         return 1;
     }
 
@@ -34,7 +34,7 @@ int main(int argc, char const *argv[])
         stations = fopen(argv[2],"r");
 
         if( bikes == NULL || stations == NULL){
-         fprintf(stderr, "Error al abrir archivos");
+         fprintf(stderr, "Error al abrir archivos\n");
          return 2;
         }
 
@@ -45,10 +45,11 @@ int main(int argc, char const *argv[])
         char *** stationsFilter = toMatrix(stations,CANT_COLS_STATIONS_CSV,filtroStations,&stationsNum); 
         puts("Filtré");
         stationInput * stns =  matrixToInput(stationsFilter,stationsNum);
+        puts("Creé el vector");
         bikeADT bikesMon = newBikeADT(stns,stationsNum);
 
         if(bikesMon == NULL){
-            fprintf(stderr, "Error al crear TAD");
+            fprintf(stderr, "Error al crear TAD\n");
             return 3;
         }
 
@@ -93,7 +94,7 @@ int main(int argc, char const *argv[])
         puts("Agregamos los trips");
         struct tripCounter * query1 = getTotalTrips(bikesMon);
         if(query1 == NULL){
-            fprintf(stderr,"Error al realizar query 1");
+            fprintf(stderr,"Error al realizar query 1\n");
             return 4;
         }
         puts("Se creó el query 1");
@@ -120,7 +121,7 @@ int main(int argc, char const *argv[])
         puts("Se creó el HTML del query 2");
         tDay * query3 = tripsPerDay(bikesMon);
         if(query3 == NULL){
-            fprintf(stderr,"Error al realizar query 3");
+            fprintf(stderr,"Error al realizar query 3\n");
             return 6;
         }
         puts("Se creó el query 3");
@@ -154,15 +155,22 @@ int main(int argc, char const *argv[])
 }
 
 stationInput * matrixToInput(char ***stations, int num){
+    errno = 0;
     stationInput * retArray = malloc(num*sizeof(stationInput));
+    if(checkErrno(retArray)){
+        printf("Error");
+        return NULL;
+    }
     for(int i = 0; i < num; i++){
+        printf("Agregando... ");
         retArray[i].stationID = atol(stations[i][ID]);
-        errno = 0;
-        retArray[i].name = malloc(sizeof(char)*strlen(stations[i][NAME]) + 1);
-        if(checkErrno(retArray[i].name)){
-            return NULL;
+          errno = 0;
+         retArray[i].name = malloc(sizeof(char) * (strlen(stations[i][NAME]) + 1));
+         if(checkErrno(retArray[i].name)){
+             return NULL;
         }
         strcpy(retArray[i].name,stations[i][NAME]);
+        printf(" Agregué la estación %s\n",stations[i][NAME]);
     }
     return retArray;
 }

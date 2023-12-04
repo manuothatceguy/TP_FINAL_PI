@@ -195,8 +195,20 @@ struct oldestTrip * getOldestTrips(bikeADT bikes){
     return retArray;
 }
 
-tDay* tripsPerDay(bikeADT bikes){
-    return bikes->days;
+tDay * tripsPerDay(bikeADT bikes){
+    
+    errno = 0;
+    tDay * toReturn = malloc(NUM_DAYS*(sizeof(toReturn[0])));
+    
+    if(checkErrno(toReturn)){
+        return NULL;
+    }
+
+    for(int i=0;i<NUM_DAYS;i++){
+        toReturn[i]=bikes->days[i];
+    }
+
+    return toReturn;
 }
 
 void freeBikes(bikeADT bikes){

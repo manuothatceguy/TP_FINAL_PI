@@ -4,8 +4,8 @@ SRCDIR = source_files
 INCDIR = header_files
 OBJDIR = obj
 
-TARGET_MON = frontMON.o
-TARGET_NYC = frontNYC.o
+TARGET_MON = bikeSharingMON.o
+TARGET_NYC = bikeSharingNYC.o
 
 SOURCES = $(wildcard $(SRCDIR)/*.c)
 OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
