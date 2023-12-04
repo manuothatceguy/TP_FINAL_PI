@@ -26,6 +26,7 @@ $(TARGET_NYC): $(OBJECTS) frontNYC.c
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(TARGET_NYC) $(OBJECTS) frontNYC.c
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
+	mkdir -p $(OBJDIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:

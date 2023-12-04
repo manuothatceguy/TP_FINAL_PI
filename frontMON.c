@@ -11,7 +11,7 @@
 #define COLS_QUERY_2 3
 #define COLS_QUERY_3 3
 #define DAYS_IN_WEEK 7
-#define CONVERSION(x) ((x)+1)%7  // Debido al formato del time.h para que el primero sea el LUNES
+#define CONVERSION(x) (((x)+1)%7)  // Debido al formato del time.h para que el primero sea el LUNES
 
 enum posInCsv {START_DATE = 0, ID_START, END_DATE, ID_END, MEMBER_STATUS};
 
@@ -63,9 +63,9 @@ int main(int argc, char const *argv[])
         for(int i = 0; i < tripNum; i++){
             char table[CANT_COLS_STATIONS_CSV][MAXCHARS] = {{0}}; 
             sprintf(table[0],"%s",query1[i].stationName);
-            sprintf(table[1],"%ld",query1[i].memberTrips);
-            sprintf(table[2],"%ld",query1[i].nonMemberTrips);
-            sprintf(table[3],"%ld",query1[i].allTrips);
+            sprintf(table[1],"%lld",query1[i].memberTrips);
+            sprintf(table[2],"%lld",query1[i].nonMemberTrips);
+            sprintf(table[3],"%lld",query1[i].allTrips);
             addHTMLRow(tableForQ1,table[0],table[1],table[2],table[3]);
         }
         
@@ -91,8 +91,8 @@ int main(int argc, char const *argv[])
         for(int i = 0; i < DAYS_IN_WEEK; i++){
             char started[MAXCHARS] = {0};
             char ended[MAXCHARS] = {0};
-            sprintf(started,"%ld",query3[CONVERSION(i)].started);
-            sprintf(ended,"%ld",query3[CONVERSION(i)].ended);
+            sprintf(started,"%lld",query3[CONVERSION(i)].started);
+            sprintf(ended,"%lld",query3[CONVERSION(i)].ended);
             addHTMLRow(tableForQ3,days[i],started,ended);
         }
         

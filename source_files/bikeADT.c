@@ -2,12 +2,10 @@
 #include "checkErrno.h"
 #include <stdio.h>
 #include <stdlib.h>
-#include <errno.h>
 #include <string.h>
 #include <time.h>
 
 #define NUM_DAYS 7
-enum days{SUN=0,MON,TUE,WED,THU,FRI,SAT}; // En el formato según time.h
 #define LEN_DATE_Q2 17 // El formato de fecha que se retorna en el query 2 tiene una longitud de 17 caracteres 
 
 typedef struct trip{
@@ -120,8 +118,8 @@ static int strToTime(struct tm *d, char * date, char * format){
  * @brief Agrega recursivamente a la lista ordenada cronologicamente un trip  
 */
 static TList addTripRec(TList trips, char * stationTo, size_t stationToId, size_t stationFrom, time_t startDate, time_t endDate, int * flag){
-    char c;
-    if( trips == NULL || ((((c=difftime(startDate,trips->dateStart))) < 0) && (stationToId != stationFrom))){
+    double c;
+    if( trips == NULL || ((((c=difftime(startDate,trips->dateStart))) < 0) && (stationToId != stationFrom))){ // para charlar
         errno = 0;
         TList aux = malloc(sizeof(tTrip));
         if(checkErrno(aux)){
@@ -152,7 +150,7 @@ int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, cha
         return 0;
     }
     struct tm startDateTm, endDateTm;
-    int val = 0;
+    int val;
 
     val = strToTime(&startDateTm,startDateStr,"&d-&d-&d &d:&d:&d");
     if(val != 6)
