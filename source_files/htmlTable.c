@@ -1,4 +1,4 @@
-#include "../header_files/htmlTable.h"
+#include "htmlTable.h"
 #include <stdarg.h>
 #include <stdlib.h>
 

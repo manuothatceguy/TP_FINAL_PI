@@ -1,7 +1,8 @@
-#include "../header_files//bikeADT.h"
-#include "../header_files//checkErrno.h"
+#include "bikeADT.h"
+#include "checkErrno.h"
 #include <stdio.h>
 #include <stdlib.h>
+#include <errno.h>
 #include <string.h>
 #include <time.h>
 
@@ -151,7 +152,7 @@ int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, cha
         return 0;
     }
     struct tm startDateTm, endDateTm;
-    int val;
+    int val = 0;
 
     val = strToTime(&startDateTm,startDateStr,"&d-&d-&d &d:&d:&d");
     if(val != 6)
