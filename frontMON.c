@@ -55,12 +55,11 @@ int main(int argc, char const *argv[])
         puts("Se creó el TAD vacío");
 
         // Agregar viajes
-        char filtroTrips[] = {1,1,1,1,1};
         char line[MAXCHARS];
-        int isFirstRow = 1, col;
         char * token;
         char startDate[MAXCHARS];
         char endDate[MAXCHARS];
+        int isFirstRow = 1, col;
         unsigned int idStart;
         unsigned int idEnd;
         char member;
@@ -139,7 +138,6 @@ int main(int argc, char const *argv[])
             free(query1[i].stationName);
             free(query2[i].stationFrom);
             free(query2[i].stationTo);
-            free(query2[i].dateTime);
         }
         freeMatrix(stationsFilter,stationsNum,COLS_STATIONS_FILTER);
         free(query1);

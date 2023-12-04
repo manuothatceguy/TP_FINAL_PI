@@ -10,15 +10,6 @@
 #define LEN_DATE_Q2 17 // El formato de fecha que se retorna en el query 2 tiene una longitud de 17 caracteres 
 #define BLOCK 10
 
-// typedef struct trip{
-//     time_t dateStart;   // Fecha en la que se comenzó a utilizar la bicicleta
-//     time_t dateEnd;     // Fecha en la que se regreso la bicicleta
-//     char * destName;    // Nombre del destino donde se dejo la bicicleta
-//     struct trip * tail; // Puntero al siguiente viaje
-// } tTrip;
-
-// typedef struct trip * TList;
-
 typedef struct station{
     char * name;                // Nombre de la estación
     size_t id;                  // Id de la estación
@@ -38,41 +29,6 @@ typedef struct bikeCDT{
 static int compareStations(tStation s1, tStation s2){
     return s1.id - s2.id;
 }
-
-// /**
-//  * @param stationsIpt estaciones a agregar
-//  * @param stationsOpt destino de las estaciones
-//  * @param orderMatrix si es nombre-id o id-nombre
-//  * @param stationNbr cantidad de estaciones a agregar
-//  * @brief traduce la matriz de char *** al formato de tStation*
-// */
-// static int matrixToElemVec(char *** stationsIpt, tStation * stationsOpt, enum order orderMatrix, size_t stationNbr){
-//     stationsOpt = malloc(stationNbr*sizeof(tStation));
-//     int nameIdx;
-//     int idIdx;
-
-//     if(orderMatrix == 1){
-//         nameIdx = 1;
-//         idIdx = 0;
-//     }
-//     else{
-//         nameIdx = 0;
-//         idIdx = 1;
-//     }
-    
-//     for(int i = 0; i < stationNbr; i++){
-//         errno = 0;
-//         stationsOpt[i].name = malloc((strlen(stationsIpt[i][nameIdx]) + 1)*sizeof(char));
-//         if(checkErrno(stationsOpt[i].name)){
-//             return 0;
-//         }
-//         strcpy(stationsOpt[i].name,stationsIpt[i][nameIdx]);
-//         stationsOpt[i].id = atol(stationsIpt[i][idIdx]);
-//     }
-//     // Ordeno para hacer búsqueda binaria
-//     qsort(stationsOpt, stationNbr, sizeof(tStation), (int (*)(const void *, const void *))compareStations); 
-//     return 1;
-// }
 
 static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
     bikes->stations = calloc(num,sizeof(tStation));
@@ -107,11 +63,6 @@ static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
 
 bikeADT newBikeADT(stationInput * stations, size_t numOfStations){
     bikeADT new = calloc(1,sizeof(bikeCDT));
-    // new->stationCount = stationNbr;
-    // if(matrixToElemVec(stations,new->stations,orderMatrix, stationNbr) == 0){
-    //     return NULL; // Si falla la asignación de memoria dinámica, retorno null
-    // }
-    
     return addStations(new,stations,numOfStations);
 }
 
@@ -134,44 +85,11 @@ static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim)
     }
 }
 
-static int strToTime(struct tm *d, char * date, char * format){
+static void strToTime(struct tm *d, char * date, char * format){
     d->tm_isdst=-1; // necesario para que funcione la libreria time.h
-    return sscanf(date,format,&d->tm_year, &d->tm_mon, &d->tm_mday, &d->tm_hour, &d->tm_min, &d->tm_sec);
+    sscanf(date,format,&d->tm_year, &d->tm_mon, &d->tm_mday, &d->tm_hour, &d->tm_min, &d->tm_sec);
+    return;
 }
-
-// /**
-//  * @param trips Vector de estaciones
-//  * @param stationFrom ID de la estacion de origen
-//  * @param stationTo ID de la estacion de destino
-//  * @param startDate fecha y hora en la que se inició el viaje
-//  * @param endDate fecha y hora en la que se finalizó el viaje
-//  * @brief Agrega recursivamente a la lista ordenada cronologicamente un trip  
-// */
-// static TList addTripRec(TList trips, char * stationTo, size_t stationToId, size_t stationFrom, time_t startDate, time_t endDate, int * flag){
-//     double c;
-//     if( trips == NULL || ((((c=difftime(startDate,trips->dateStart))) < 0) && (stationToId != stationFrom))){ // para charlar
-//         errno = 0;
-//         TList aux = malloc(sizeof(tTrip));
-//         if(checkErrno(aux)){
-//             return NULL;
-//         }
-//         aux->dateStart = startDate;
-//         aux->dateEnd = endDate;
-        
-//         errno = 0;
-//         aux->destName = malloc(strlen(stationTo) + 1);
-//         if(checkErrno(aux->destName)){
-//             *flag = 1;
-//         }
-//         strcpy(aux->destName,stationTo);
-//         aux->tail = trips;
-//         return aux;
-//     } else // Si son iguales agrego despues (orden de procesado)
-//     {
-//         addTripRec(trips->tail, stationTo, stationToId, stationFrom, startDate, endDate, flag);
-//         return trips;
-//     }
-// }
 
 /**
  * Solo agrega si start es menor estricto al tiempo guardado en stationFrom
@@ -211,20 +129,13 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
         return;
     }
     struct tm startDateTm, endDateTm;
-    int val;
 
-    val = strToTime(&startDateTm,startDateStr,"&d-&d-&d &d:&d:&d");
-    
-    if(val != 6)
-        return;
+
+    strToTime(&startDateTm,startDateStr,"&d-&d-&d &d:&d:&d");
     
     time_t startDate = mktime(&startDateTm);
 
-    val = strToTime(&endDateTm,endDateStr,"&d-&d-&d &d:&d:&d");
-    
-    if(val != 6) 
-        return;
-    
+    strToTime(&endDateTm,endDateStr,"&d-&d-&d &d:&d:&d");
     time_t endDate = mktime(&endDateTm);
     
     
@@ -274,7 +185,7 @@ struct tripCounter * getTotalTrips(bikeADT bikes){
 }
 
 struct oldestTrip * getOldestTrips(bikeADT bikes){
-    struct oldestTrip retArray[(int)(bikes->stationCount)];
+    struct oldestTrip * retArray = malloc((bikes->stationCount) * sizeof(*retArray));
     for(int i = 0; i < (int)(bikes->stationCount); i++){
         retArray[i].stationFrom = malloc(strlen(bikes->stations[i].name) + 1);
         strcpy(retArray[i].stationFrom,bikes->stations[i].name);
@@ -284,7 +195,7 @@ struct oldestTrip * getOldestTrips(bikeADT bikes){
     return retArray;
 }
 
-tDay * tripsPerDay(bikeADT bikes){
+tDay* tripsPerDay(bikeADT bikes){
     return bikes->days;
 }
 
