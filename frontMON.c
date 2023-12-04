@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "bikeADT.h" // despues arreglar estilo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#include "csvTools.h"    // tambien revisar estiloo!!!!!!!!!!!!!!!!
-#include "htmlTable.h"
+#include "header_files/bikeADT.h" // despues arreglar estilo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#include "header_files/csvTools.h"    // tambien revisar estiloo!!!!!!!!!!!!!!!!
+#include "header_files/htmlTable.h"
 
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESMON_CSV 5
@@ -63,7 +63,7 @@ int main(int argc, char const *argv[])
         for(int i = 0; i < tripNum; i++){
             char table[CANT_COLS_STATIONS_CSV][MAXCHARS] = {{0}}; 
             sprintf(table[0],"%s",query1[i].stationName);
-            sprintf(table[1],"%ld",query1[i].memberTrips);
+            sprintf(table[1],"%ld",query1[i].memberTrips); // PARA CORREGIR tira un warning del tipo de dato, noc q opinan (se soluciona casteando a long)
             sprintf(table[2],"%ld",query1[i].nonMemberTrips);
             sprintf(table[3],"%ld",query1[i].allTrips);
             addHTMLRow(tableForQ1,table[0],table[1],table[2],table[3]);
