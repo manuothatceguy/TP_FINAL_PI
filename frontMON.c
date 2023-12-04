@@ -1,8 +1,8 @@
 #include <stdio.h>
 #include <stdlib.h>
-#include "bikeADT/bikeADT.h" // despues arreglar estilo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
-#include "csvTools/csvTools.h"    // tambien revisar estiloo!!!!!!!!!!!!!!!!
-#include "CTable/htmlTable.h"
+#include "bikeADT.h" // despues arreglar estilo!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+#include "csvTools.h"    // tambien revisar estiloo!!!!!!!!!!!!!!!!
+#include "htmlTable.h"
 
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESMON_CSV 5

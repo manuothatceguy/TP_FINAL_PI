@@ -1,17 +1,10 @@
 #include "csvTools.h"
+#include "checkErrno.h"
 #include <errno.h>
 #include <stdlib.h>
 
 #define MAXCHAR 100
 #define BLOCK 10
-
-static int checkErrno(void * ptr){
-    if(ptr == NULL || errno == ENOMEM){
-        errno = ENOMEM;
-        return 1;
-    }
-    return 0;
-}
                             
 char *** toMatrix(FILE * fp, unsigned int colNbr, char colsToFilter[], unsigned int * rows){ // colNbr es la dimension de colsToFilter
 
