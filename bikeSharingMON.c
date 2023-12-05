@@ -17,6 +17,7 @@
 #define IS_MEMBER '1'
 #define BLOCK 10
 #define CONVERSION(x) (((x)+6)%7)  // Debido al formato del time.h para que el primero sea el LUNES
+#define LEN_DATE_Q2 17 // El formato de fecha que se retorna en el query 2 tiene una longitud de 17 caracteres 
 
 enum posInCsv {START_DATE = 0, ID_START, END_DATE, ID_END, MEMBER_STATUS};
 enum stationPos {ID = 0, NAME};
@@ -45,6 +46,7 @@ int main(int argc, char const *argv[])
         unsigned int stationsNum = 0;
         puts("Estoy por arrancar a filtrar");
         char *** stationsFilter = toMatrix(stations,CANT_COLS_STATIONS_CSV,filtroStations,&stationsNum); 
+        fclose(stations);
         for(int i=0; i < stationsNum; i++){
             for(int j = 0; j < COLS_STATIONS_FILTER; j++){
                 printf("%s\t", stationsFilter[i][j]);
@@ -101,8 +103,7 @@ int main(int argc, char const *argv[])
             } 
             isFirstRow=0;
         }
-        
-
+        fclose(bikes);
         puts("Agregamos los trips");
         struct tripCounter * query1 = getTotalTrips(bikesMon);
         if(query1 == NULL){
@@ -124,10 +125,15 @@ int main(int argc, char const *argv[])
             fprintf(query1csv,"%s;%s;%s;%s\n",table[0],table[1],table[2],table[3]);
             addHTMLRow(tableForQ1,table[0],table[1],table[2],table[3]);
         }
-        fprintf(query1csv,"\0");
+        fprintf(query1csv,"%c",'\0');
         fclose(query1csv);
         closeHTMLTable(tableForQ1);
-        puts("Se creó el HTML del query 1");
+        puts("Se creó el HTML y el CSV del query 1");
+
+        for(int i = 0; i < getTotalStations(bikesMon); i++){
+            free(query1[i].stationName);
+        }
+        free(query1);
 
         struct oldestTrip * query2 = getOldestTrips(bikesMon);
         if(query2 == NULL){
@@ -135,13 +141,21 @@ int main(int argc, char const *argv[])
             return 5;
         }
         puts("Se creó el query 2");
-        htmlTable tableForQ2 = newTable("query2.html",COLS_QUERY_2,"bikeStation","bikeEndStation","oldestDateTime");
+        char * colNamesQ2[] = {"bikeStation","bikeEndStation","oldestDateTime"};
+        htmlTable tableForQ2 = newTable("query2.html",COLS_QUERY_2,colNamesQ2[0],colNamesQ2[1],colNamesQ2[2]);
         FILE * query2csv;
         query2csv = fopen("query2.csv","w");
+        fprintf(query2csv,colNamesQ2[0],colNamesQ2[1],colNamesQ2[2]);
+        struct tm * time;
+        char timeStr[LEN_DATE_Q2];
         for(int i = 0; i < stationsNum; i++){
-            addHTMLRow(tableForQ2,query2->stationFrom,query2->stationTo,query2->dateTime);
+            time = gmtime(&query2[i].dateTime);
+            strftime(timeStr,LEN_DATE_Q2,"%d/%m/%Y %H:%M",time);
+            addHTMLRow(tableForQ2,query2[i].stationFrom,query2[i].stationTo,timeStr);
+            fprintf(query2csv,"%s;%s;%s\n",query2->stationFrom,query2->stationTo,timeStr);
         }
         closeHTMLTable(tableForQ2);
+        fclose(query2csv);
         puts("Se creó el HTML del query 2");
         tDay * query3 = tripsPerDay(bikesMon);
         if(query3 == NULL){
@@ -159,19 +173,9 @@ int main(int argc, char const *argv[])
             addHTMLRow(tableForQ3,days[i],started,ended);
         }
         puts("Se creó el HTML del query 3");
-        for(int i = 0; i < stationsNum; i++){
-            free(query1[i].stationName);
-            free(query2[i].stationFrom);
-            free(query2[i].stationTo);
-        }
-        free(query1);
-        free(query2);
-
-        
         closeHTMLTable(tableForQ3);
         freeBikes(bikesMon);
-        fclose(bikes);
-        fclose(stations);
+
         puts("Memoria liberada");
     }
     puts("OK!!");

@@ -7,7 +7,6 @@
 #include <errno.h>
 
 #define NUM_DAYS 7
-#define LEN_DATE_Q2 17 // El formato de fecha que se retorna en el query 2 tiene una longitud de 17 caracteres 
 #define BLOCK 10
 
 typedef struct station{
@@ -194,12 +193,18 @@ struct tripCounter * getTotalTrips(bikeADT bikes){
 }
 
 struct oldestTrip * getOldestTrips(bikeADT bikes){
-    struct oldestTrip * retArray = malloc((bikes->stationCount) * sizeof(*retArray));
+    struct oldestTrip * retArray = malloc((bikes->stationCount) * sizeof(struct oldestTrip));
     for(int i = 0; i < (int)(bikes->stationCount); i++){
         retArray[i].stationFrom = malloc(strlen(bikes->stations[i].name) + 1);
         strcpy(retArray[i].stationFrom,bikes->stations[i].name);
-        retArray[i].stationTo = malloc(strlen(bikes->stations[i].oldest.stationTo) + 1);
-        retArray[i].dateTime = bikes->stations[i].oldest.dateTime;
+        if(bikes->stations[i].memberTripCount != 0 || bikes->stations[i].notMemberTripCount != 0){    
+            retArray[i].stationTo = malloc(strlen(bikes->stations[i].oldest.stationTo) + 1);
+            strcpy(retArray[i].stationTo,bikes->stations[i].oldest.stationTo);
+            retArray[i].dateTime = bikes->stations[i].oldest.dateTime;
+        } else{
+            retArray[i].stationTo = malloc();
+        }
+
     }
     return retArray;
 }
