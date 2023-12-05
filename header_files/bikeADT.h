@@ -6,7 +6,7 @@
  *          Santiago Sanchez Marostica 64056,
  *          Gregorio Tiscornia 64087
 */
-
+#include <time.h>
 #include <stdio.h>
 
 #ifndef BIKE_ADT_H
@@ -14,16 +14,18 @@
 
 typedef struct bikeCDT * bikeADT;
 
-enum order{NAME_ID = 0, ID_NAME};
+typedef struct elem{  //estructura que define los elementos del vector.
+    size_t stationID; // ID de la estacion
+    char * name; // nombre de la estacion
+} stationInput;
 
 /**
- * @param stations matriz con las estaciones válidas, se espera que sea de la forma de una matriz de strings, con un id y un nombre por estación.
- * @param stationNbr cantidad de estaciones
- * @param orderMatrix si order es 0, la 1ra columna es el id, la 2da el nombre. 1 si es viceversa.
+ * @param stations Vector con las estaciones válidas.
+ * @param numOfStations Cantidad de estaciones
  * @return Un ADT vacío que espera llenarse o NULL si fallo.
  * @brief Esta función debe ejecutarse al iniciar con este ADT.
 */
-bikeADT newBikeADT(char *** stations, size_t stationNbr, enum order orderMatrix); // recibe un vector de estaciones validas
+bikeADT newBikeADT(stationInput * stations, size_t numOfStations); // recibe un vector de estaciones validas
 
 /**
  * @param bikes el ADT previamente inicializado con la función newBikeADT
@@ -35,7 +37,7 @@ bikeADT newBikeADT(char *** stations, size_t stationNbr, enum order orderMatrix)
  * @return 1 si se agregó, 0 si no se agregó
  * @brief Agrega un viaje, si alguna de las estaciones no existe las agrega. Se espera que se utilice esta función para la carga masiva de datos.
 */
-int addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember);
+void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember);
 
 struct tripCounter{
     char * stationName;
@@ -45,24 +47,30 @@ struct tripCounter{
 };
 
 /**
+ * @return cantidad de stations guardadas
+*/
+size_t getTotalStations(bikeADT bikes);
+
+/**
  * QUERY 1
  * @param bikes el TAD previamente inicializado con la función newBikeADT
- * @return vector de struct tripCounter
+ * @return vector de struct tripCounter ordenado descendientemente por cantidad total de viajes por station
 */
 struct tripCounter * getTotalTrips(bikeADT bikes);
 
 struct oldestTrip{
     char * stationFrom;
-    char * stationTo;
-    char * dateTime; // En formato "DD/MM/YYYY HH:MM"
+    char * stationTo;   // Nombre de la estación de llegada
+    time_t dateTime;    // Tiempo de salida. Después se convierte con gmtime() 
 };
 
 /**
  * QUERY 2
  * @param bikes TAD creado previamente
+ * @param dim de salida para la cantidad de elementos
  * @return vector de struct oldestTrip o NULL si fallo
 */
-struct oldestTrip * getOldestTrips(bikeADT bikes);
+struct oldestTrip * getOldestTrips(bikeADT bikes, int * dim);
 
 typedef struct day{
     size_t started;     // Cantidad de viajes iniciados en este día
