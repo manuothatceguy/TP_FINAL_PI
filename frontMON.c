@@ -110,10 +110,12 @@ int main(int argc, char const *argv[])
             return 4;
         }
         puts("Se creó el query 1");
-        htmlTable tableForQ1 = newTable("query1.html",COLS_QUERY_1,"bikeStation","memberTrips","casualTrips","allTrips");
+        char * colNamesQ1[] = {"bikeStation","memberTrips","casualTrips","allTrips"};
+        htmlTable tableForQ1 = newTable("query1.html",COLS_QUERY_1,colNamesQ1[0],colNamesQ1[1],colNamesQ1[2],colNamesQ1[3]);
         char table[CANT_COLS_STATIONS_CSV][MAXCHARS];
         FILE * query1csv;
         query1csv = fopen("query1.csv","w");
+        fprintf(query1csv,"%s;%s;%s;%s\n",colNamesQ1[0],colNamesQ1[1],colNamesQ1[2],colNamesQ1[3]);
         for(int i = 0; i < stationsNum; i++){
             sprintf(table[0],"%s",query1[i].stationName);
             sprintf(table[1],"%ld",query1[i].memberTrips);
@@ -126,7 +128,7 @@ int main(int argc, char const *argv[])
         fclose(query1csv);
         closeHTMLTable(tableForQ1);
         puts("Se creó el HTML del query 1");
-        
+
         struct oldestTrip * query2 = getOldestTrips(bikesMon);
         if(query2 == NULL){
             fprintf(stderr,"Error al realizar query 2\n");
@@ -134,6 +136,8 @@ int main(int argc, char const *argv[])
         }
         puts("Se creó el query 2");
         htmlTable tableForQ2 = newTable("query2.html",COLS_QUERY_2,"bikeStation","bikeEndStation","oldestDateTime");
+        FILE * query2csv;
+        query2csv = fopen("query2.csv","w");
         for(int i = 0; i < stationsNum; i++){
             addHTMLRow(tableForQ2,query2->stationFrom,query2->stationTo,query2->dateTime);
         }
