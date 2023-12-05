@@ -13,10 +13,8 @@ INCLUDES = -I$(INCDIR)
 
 all: mon nyc
 
-mon: CFLAGS += -DMONTREAL
 mon: $(TARGET_MON)
 
-nyc: CFLAGS += -DNEWYORK
 nyc: $(TARGET_NYC)
 
 $(TARGET_MON): $(OBJECTS) bikeSharingMON.c

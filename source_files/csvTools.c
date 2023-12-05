@@ -31,7 +31,7 @@ char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned in
                 for (size_t i = copy; i < copy + BLOCK; i++) {
                     errno = 0;
                     retMatrix[i] = calloc(newColDim, sizeof(char*));
-                    if (checkErrno(retMatrix[i])) {
+                    if (checkErrno(retMatrix[i])){
                         return NULL;
                     }
                 }
@@ -47,7 +47,7 @@ char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned in
                     size_t len = strlen(token);
 
                     // Asegurarse de tener suficiente espacio en la memoria para la cadena
-                    retMatrix[copy][newColIdx] = realloc(retMatrix[copy][newColIdx], len + 1);
+                    retMatrix[copy][newColIdx] = realloc(retMatrix[copy][newColIdx], (len + 1)*sizeof(char));
                     if (checkErrno((void *)retMatrix[copy][newColIdx])) {
                         return NULL;
                     }
@@ -65,6 +65,18 @@ char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned in
 
         isFirstRow = 0; // apago flag
     }
+
+    for(int i = copy; i < ((copy/BLOCK)+1)*BLOCK; i++){ // Al usar block quedan reservadas mas filas de las que se utilizan
+        free(retMatrix[i]);                             // liberamos cada fila extra
+    }
+
+    // No es necesario una vez liberada la zona de memoria no utilizada
+    //
+    // errno = 0;
+    // retMatrix = realloc(retMatrix,(copy)*sizeof(char**));
+    // if(checkErrno(retMatrix)){
+    //     return  NULL;
+    // }
 
     *rows = copy;
     return retMatrix;

@@ -197,38 +197,38 @@ static int ordenAlfabetico(const void* p, const void* q){
     char * sp, * sq;
     sp = ((struct oldestTrip*)p)->stationFrom;
     sq = ((struct oldestTrip*)q)->stationFrom;
-    return strcasecmp(sp,sq);
+    int comp = strcasecmp(sp,sq);
+    return comp;
 }
 
 struct oldestTrip * getOldestTrips(bikeADT bikes, int * dim){
     struct oldestTrip * retArray = malloc((bikes->stationCount) * sizeof(struct oldestTrip));
-    size_t howMany = bikes->stationCount;
+    size_t howMany = 0;
     for(size_t i = 0; i < bikes->stationCount; i++){
         if(bikes->stations[i].oldest.stationTo != NULL){
             errno = 0;    
-            retArray[i].stationFrom = malloc(strlen(bikes->stations[i].name) + 1);
-            if(checkErrno(retArray[i].stationFrom)){
+            retArray[howMany].stationFrom = malloc(strlen(bikes->stations[i].name) + 1);
+            if(checkErrno(retArray[howMany].stationFrom)){
                 return NULL;
             }   
-            strcpy(retArray[i].stationFrom,bikes->stations[i].name);
+            strcpy(retArray[howMany].stationFrom,bikes->stations[i].name);
             errno = 0;
-            retArray[i].stationTo = malloc(strlen(bikes->stations[i].oldest.stationTo) + 1);
-            if(checkErrno(retArray[i].stationTo)){
+            retArray[howMany].stationTo = malloc(strlen(bikes->stations[i].oldest.stationTo) + 1);
+            if(checkErrno(retArray[howMany].stationTo)){
                 return NULL;
             }
-            strcpy(retArray[i].stationTo,bikes->stations[i].oldest.stationTo);
-            retArray[i].dateTime = bikes->stations[i].oldest.dateTime;
-        } else{
-            howMany--;
+            strcpy(retArray[howMany].stationTo,bikes->stations[i].oldest.stationTo);
+            retArray[howMany].dateTime = bikes->stations[i].oldest.dateTime;
+            howMany++;
         }
     }
     errno = 0;
-    retArray = realloc(retArray,howMany*sizeof(struct oldestTrip));
+    retArray = realloc(retArray,(howMany + 1)*sizeof(struct oldestTrip));
     if(checkErrno(retArray)){
-        puts("Error en el realloc");
+        return NULL;
     }
     *dim = howMany;
-    //qsort(retArray,howMany,sizeof(retArray[0]),ordenAlfabetico);
+    qsort(retArray,howMany,sizeof(retArray[0]),ordenAlfabetico);
     return retArray;
 }
 
