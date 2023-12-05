@@ -4,7 +4,6 @@
 #include <strings.h>
 #include <stdlib.h>
 #include <string.h>
-
 #include <errno.h>
 
 #define NUM_DAYS 7
@@ -90,11 +89,15 @@ static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim)
     }
 }
 
-static struct tm strToTime(char * date, char * format){
-    struct tm d;
-    d.tm_isdst=-1; // necesario para que funcione la libreria time.h
-    sscanf(date,format,&d.tm_year - 1900, &d.tm_mon-1, &d.tm_mday, &d.tm_hour, &d.tm_min, &d.tm_sec);
-    return d;
+struct tm parseFecha(const char *fechaStr){
+    struct tm fechaTm = {0};  // Inicializar el struct tm en 0
+    sscanf(fechaStr, "%d-%d-%d %d:%d:%d", &fechaTm.tm_year, &fechaTm.tm_mon, &fechaTm.tm_mday, 
+           &fechaTm.tm_hour, &fechaTm.tm_min, &fechaTm.tm_sec);
+    // Ajustar los valores según la convención del struct tm
+    fechaTm.tm_mon -= 1;
+    fechaTm.tm_year -= 1900;
+    fechaTm.tm_isdst = -1;
+    return fechaTm;
 }
 
 /**
@@ -135,11 +138,11 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
         return;
     }
     struct tm startDateTm, endDateTm;
-    char * formatDateInput =  "&d-&d-&d &d:&d:&d";
-    startDateTm = strToTime(startDateStr,formatDateInput);
+    
+    startDateTm = parseFecha(startDateStr);
     time_t startDate = mktime(&startDateTm);
 
-    endDateTm = strToTime(endDateStr,formatDateInput);
+    endDateTm = parseFecha(endDateStr);
     time_t endDate = mktime(&endDateTm);
     
     
