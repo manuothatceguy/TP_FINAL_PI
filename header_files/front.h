@@ -19,8 +19,3 @@
 */
 stationInput * matrixToInput(char ***stations, int num, int id_pos, int name_pos);
 
-/**
- * Función que recibe "member" o "casual"
- * @return 1 el texto es "member", 0 si el texto es "casual"
-*/
-static char isMemberNYC(char * status);

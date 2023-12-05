@@ -1,26 +1,5 @@
 #include "front.h"
 
-// BORRAR >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-
-void printProgressBar(int progress, int total) {
-    const int barWidth = 50;
-    float progressRatio = (float)progress / total;
-    int barProgress = barWidth * progressRatio;
-
-    printf("[");
-    for (int i = 0; i < barWidth; ++i) {
-        if (i < barProgress) {
-            printf("=");
-        } else {
-            printf(" ");
-        }
-    }
-    printf("] %3d%%\r", (int)(progressRatio * 100));
-    fflush(stdout);
-}
-
-// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
-
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESMON_CSV 5
 
@@ -79,12 +58,7 @@ int main(int argc, char const *argv[])
         int idEnd;
         char member;
 
-        int j=0; // << BORRAR
         while((fgets(line,MAXCHARS,bikes))){ // preparamos los datos para luego ingresarlos al ADT
-
-            printProgressBar(j, 14266436); // << BORRAR
-            j++; // << BORRAR
-
             col=0;
             if(!isFirstRow){
                 token = strtok(line,";");
@@ -195,7 +169,6 @@ int main(int argc, char const *argv[])
         free(query3);
         closeHTMLTable(tableForQ3);
         freeBikes(bikesMon);
-        puts("FIN");
     return 0;
 }
 

@@ -25,7 +25,7 @@ char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned in
             if (copy % BLOCK == 0) {
                 errno = 0;
                 retMatrix = realloc(retMatrix, (copy + BLOCK) * sizeof(char**));
-                if (checkErrno((void *)retMatrix))
+                if (checkErrno(retMatrix))
                     return NULL;
 
                 for (size_t i = copy; i < copy + BLOCK; i++) {
@@ -65,9 +65,10 @@ char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned in
 
         isFirstRow = 0; // apago flag
     }
-
-    for(int i = copy; i < ((copy/BLOCK)+1)*BLOCK; i++){ // Al usar block quedan reservadas mas filas de las que se utilizan
-        free(retMatrix[i]);                             // liberamos cada fila extra
+    if(copy%BLOCK!=0){
+        for(int i = copy; i < ((copy/BLOCK)+1)*BLOCK; i++){ // Al usar block quedan reservadas mas filas de las que se utilizan
+            free(retMatrix[i]);                             // liberamos cada fila extra
+        }
     }
 
     // No es necesario una vez liberada la zona de memoria no utilizada

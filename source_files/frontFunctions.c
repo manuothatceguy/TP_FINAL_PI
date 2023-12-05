@@ -19,6 +19,3 @@ stationInput * matrixToInput(char ***stations, int num, int id_pos, int name_pos
     return retArray;
 }
 
-static char isMemberNYC(char * status){
-    return (strcmp("member",status) == 0);
-}
