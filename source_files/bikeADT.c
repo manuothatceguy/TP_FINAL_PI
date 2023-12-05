@@ -12,7 +12,7 @@
 
 typedef struct station{
     char * name;                // Nombre de la estación
-    size_t id;                  // Id de la estación
+    int id;                  // Id de la estación
 
     struct oldestTrip oldest;
     // TList trips;                // Lista de viajes con origen en esta estación ordenados cronologicamente
@@ -26,15 +26,19 @@ typedef struct bikeCDT{
     tDay days[NUM_DAYS];    // Vector de struct day 
 } bikeCDT;
 
-static int compareStations(tStation s1, tStation s2){
-    return s1.id - s2.id;
+static int comparator(const void* p, const void* q)
+{
+   int l = ((tStation*)p)->id;
+   int r = ((tStation*)q)->id;
+   return (l - r);
 }
 
 static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
     bikes->stations = calloc(num,sizeof(tStation));
     bikes->stationCount = num;
     int len;
-    for(int i = 0; i < bikes->stationCount; i++){
+    int i ;
+    for(i = 0; i < bikes->stationCount; i++){
         bikes->stations[i].id = stations[i].stationID;
         len = 0;
         while(stations[i].name[len]){
@@ -54,9 +58,10 @@ static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
             return NULL;
         }
         bikes->stations[i].name[len] = '\0';
-    }
 
-    qsort(bikes->stations, bikes->stationCount, sizeof(tStation), (int (*)(const void *, const void *))compareStations); 
+    }
+    printf("%d",i);
+    qsort((void*)(bikes->stations), bikes->stationCount, sizeof(bikes->stations[0]), comparator); 
 
     return bikes;
 }
@@ -76,12 +81,13 @@ bikeADT newBikeADT(stationInput * stations, size_t numOfStations){
 static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim){
     if(dim == 0)
         return NULL;
-    if(stations[(int)(dim/2)].id > id){
+    int medio = dim/2;
+    if(stations[medio].id > id){
         return binarySearch(stations,id,(int)(dim/2));
     } else if(stations[(int)(dim/2)].id < id){
-        return binarySearch(stations+(int)(dim/2),id,(int)(dim/2));
+        return binarySearch(stations+medio+1,id,dim - medio - 1);
     } else{
-        return stations;
+        return stations + medio;
     }
 }
 
@@ -152,16 +158,14 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
     bikes->days[ansEnd->tm_wday].ended++;
     
     if(strcmp(foundStationFrom->name,foundStationTo->name) != 0){ // Si el viaje no es circular... 
-        if(checkOldest(foundStationFrom,foundStationTo->name,startDate)==0){
-            return;
-        }
+        checkOldest(foundStationFrom,foundStationTo->name,startDate);
     }
 
     return;
 }
 
-static int descOrderForTrips(struct tripCounter t1, struct tripCounter t2){
-    return (int)(t1.allTrips - t2.allTrips);
+static int tripOrder(struct tripCounter t1, struct tripCounter t2){
+    return ((int)t1.allTrips - (int)t2.allTrips);
 }
 
 struct tripCounter * getTotalTrips(bikeADT bikes){
@@ -180,7 +184,7 @@ struct tripCounter * getTotalTrips(bikeADT bikes){
         }
         strcpy(retArray[i].stationName, bikes->stations[i].name);
     }
-    qsort(retArray,sizeof(retArray[0]),bikes->stationCount,((int(*) (const void *, const void *))descOrderForTrips));
+    //qsort(retArray,sizeof(struct tripCounter),bikes->stationCount,((int(*) (const void *, const void *))tripOrder));
     return retArray;
 }
 

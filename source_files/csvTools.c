@@ -3,18 +3,18 @@
 #include <errno.h>
 #include <stdlib.h>
 
-#define MAXCHAR 100
+#define MAXCHAR 500
 #define BLOCK 10
                             
 char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned int *rows) {
     char row[MAXCHAR];
     char *token;
-    int isFirstRow = 1; // Flag para no copiar la primera fila con los títulos
+    int isFirstRow = 1;     // Flag para no copiar la primera fila con los títulos
     char ***retMatrix = NULL;
-    int copy = 0; // Cantidad de filas de la matriz destino
-    int newColDim = 0; // Indice de la columna de la matriz destino.
+    size_t copy = 0;           // Cantidad de filas de la matriz destino
+    int newColDim = 0;      // Indice de la columna de la matriz destino.
 
-    for (int i = 0; i < colNbr; i++) {
+    for (size_t i = 0; i < colNbr; i++) {
         if (colsToFilter[i])
             newColDim++;
     }
@@ -27,7 +27,7 @@ char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned in
                 if (checkErrno((void *)retMatrix))
                     return NULL;
 
-                for (int i = copy; i < copy + BLOCK; i++) {
+                for (size_t i = copy; i < copy + BLOCK; i++) {
                     errno = 0;
                     retMatrix[i] = calloc(newColDim, sizeof(char*));
                     if (checkErrno(retMatrix[i])) {
@@ -50,7 +50,7 @@ char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned in
                     if (checkErrno((void *)retMatrix[copy][newColIdx])) {
                         return NULL;
                     }
-
+                    
                     strcpy(retMatrix[copy][newColIdx], token);
                     newColIdx++;
                 }

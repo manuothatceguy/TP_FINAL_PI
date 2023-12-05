@@ -7,13 +7,15 @@
 
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESMON_CSV 5
-#define MAXCHARS 100 // Para el sprintf. Tope arbitrario.
+#define MAXCHARS 250 // Para el sprintf. Tope arbitrario.
 #define COLS_QUERY_1 4
 #define COLS_QUERY_2 3
 #define COLS_QUERY_3 3
 #define DAYS_IN_WEEK 7
 #define COLS_STATIONS_FILTER 2
 #define COLS_BIKES_FILTER 5
+#define IS_MEMBER '1'
+#define BLOCK 10
 #define CONVERSION(x) (((x)+6)%7)  // Debido al formato del time.h para que el primero sea el LUNES
 
 enum posInCsv {START_DATE = 0, ID_START, END_DATE, ID_END, MEMBER_STATUS};
@@ -43,8 +45,15 @@ int main(int argc, char const *argv[])
         unsigned int stationsNum = 0;
         puts("Estoy por arrancar a filtrar");
         char *** stationsFilter = toMatrix(stations,CANT_COLS_STATIONS_CSV,filtroStations,&stationsNum); 
+        for(int i=0; i < stationsNum; i++){
+            for(int j = 0; j < COLS_STATIONS_FILTER; j++){
+                printf("%s\t", stationsFilter[i][j]);
+            }
+            puts("\n");
+        }
         puts("Filtré");
         stationInput * stns =  matrixToInput(stationsFilter,stationsNum);
+        freeMatrix(stationsFilter,stationsNum,COLS_STATIONS_FILTER);
         puts("Creé el vector");
         bikeADT bikesMon = newBikeADT(stns,stationsNum);
 
@@ -61,11 +70,11 @@ int main(int argc, char const *argv[])
         char startDate[MAXCHARS];
         char endDate[MAXCHARS];
         int isFirstRow = 1, col;
-        unsigned int idStart;
-        unsigned int idEnd;
+        int idStart;
+        int idEnd;
         char member;
 
-        while((fgets(line,MAXCHARS,bikes)) != NULL){
+        while((fgets(line,MAXCHARS,bikes))){
             col=0;
             if(!isFirstRow){
                 token = strtok(line,";");
@@ -84,13 +93,16 @@ int main(int argc, char const *argv[])
                         idEnd = atoi(token);
                         break;
                     default:
-                        member = *token;
+                        member = (*token == IS_MEMBER); //para que guarde 0 y 1 (y no 48 y 49)
                         break;
                     }
                 }
                 addTrip(bikesMon,idStart,idEnd,startDate,endDate,member);
-            }
+            } 
+            isFirstRow=0;
         }
+        
+
         puts("Agregamos los trips");
         struct tripCounter * query1 = getTotalTrips(bikesMon);
         if(query1 == NULL){
@@ -99,18 +111,22 @@ int main(int argc, char const *argv[])
         }
         puts("Se creó el query 1");
         htmlTable tableForQ1 = newTable("query1.html",COLS_QUERY_1,"bikeStation","memberTrips","casualTrips","allTrips");
+        char table[CANT_COLS_STATIONS_CSV][MAXCHARS];
+
+        size_t total=0;
         for(int i = 0; i < stationsNum; i++){
-            char table[CANT_COLS_STATIONS_CSV][MAXCHARS] = {{0}}; 
             sprintf(table[0],"%s",query1[i].stationName);
             sprintf(table[1],"%ld",query1[i].memberTrips);
             sprintf(table[2],"%ld",query1[i].nonMemberTrips);
             sprintf(table[3],"%ld",query1[i].allTrips);
             addHTMLRow(tableForQ1,table[0],table[1],table[2],table[3]);
         }
+        printf("%ld\n",total);
+        closeHTMLTable(tableForQ1);
         puts("Se creó el HTML del query 1");
         struct oldestTrip * query2 = getOldestTrips(bikesMon);
         if(query2 == NULL){
-            fprintf(stderr,"Error al realizar query 2");
+            fprintf(stderr,"Error al realizar query 2\n");
             return 5;
         }
         puts("Se creó el query 2");
@@ -118,6 +134,7 @@ int main(int argc, char const *argv[])
         for(int i = 0; i < stationsNum; i++){
             addHTMLRow(tableForQ2,query2->stationFrom,query2->stationTo,query2->dateTime);
         }
+        closeHTMLTable(tableForQ2);
         puts("Se creó el HTML del query 2");
         tDay * query3 = tripsPerDay(bikesMon);
         if(query3 == NULL){
@@ -140,11 +157,11 @@ int main(int argc, char const *argv[])
             free(query2[i].stationFrom);
             free(query2[i].stationTo);
         }
-        freeMatrix(stationsFilter,stationsNum,COLS_STATIONS_FILTER);
         free(query1);
         free(query2);
-        closeHTMLTable(tableForQ1);
-        closeHTMLTable(tableForQ2);
+
+        
+        closeHTMLTable(tableForQ3);
         freeBikes(bikesMon);
         fclose(bikes);
         fclose(stations);
@@ -162,7 +179,6 @@ stationInput * matrixToInput(char ***stations, int num){
         return NULL;
     }
     for(int i = 0; i < num; i++){
-        printf("Agregando... ");
         retArray[i].stationID = atol(stations[i][ID]);
           errno = 0;
          retArray[i].name = malloc(sizeof(char) * (strlen(stations[i][NAME]) + 1));
@@ -170,7 +186,6 @@ stationInput * matrixToInput(char ***stations, int num){
              return NULL;
         }
         strcpy(retArray[i].name,stations[i][NAME]);
-        printf(" Agregué la estación %s\n",stations[i][NAME]);
     }
     return retArray;
 }

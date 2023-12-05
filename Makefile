@@ -4,7 +4,7 @@ SRCDIR = source_files
 INCDIR = header_files
 OBJDIR = obj
 
-TARGET_MON = bikeSharingMON.o
+TARGET_MON = frontMON.o
 TARGET_NYC = bikeSharingNYC.o
 
 SOURCES = $(wildcard $(SRCDIR)/*.c)
@@ -30,5 +30,4 @@ $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
-	rm -rf $(OBJDIR) $(TARGET_MON) $(TARGET_NYC)
-
+	rm -rf $(OBJDIR) $(TARGET_MON) $(TARGET_NYC) *.html
