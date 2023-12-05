@@ -15,8 +15,9 @@ char ***toMatrix(FILE *fp, unsigned int colNbr, char colsToFilter[], unsigned in
     int newColDim = 0;      // Indice de la columna de la matriz destino.
 
     for (size_t i = 0; i < colNbr; i++) {
-        if (colsToFilter[i])
+        if(colsToFilter[i]){
             newColDim++;
+        }
     }
 
     while (fgets(row, MAXCHAR, fp) != NULL) {

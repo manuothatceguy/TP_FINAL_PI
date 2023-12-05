@@ -5,6 +5,27 @@
 #include "htmlTable.h"
 #include "checkErrno.h"
 
+// BORRAR >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+
+void printProgressBar(int progress, int total) {
+    const int barWidth = 50;
+    float progressRatio = (float)progress / total;
+    int barProgress = barWidth * progressRatio;
+
+    printf("[");
+    for (int i = 0; i < barWidth; ++i) {
+        if (i < barProgress) {
+            printf("=");
+        } else {
+            printf(" ");
+        }
+    }
+    printf("] %3d%%\r", (int)(progressRatio * 100));
+    fflush(stdout);
+}
+
+// <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESMON_CSV 5
 #define MAXCHARS 200 // Para el sprintf. Tope arbitrario.
@@ -76,7 +97,12 @@ int main(int argc, char const *argv[])
         int idEnd;
         char member;
 
+        int j=0; // << BORRAR
         while((fgets(line,MAXCHARS,bikes))){ // preparamos los datos para luego ingresarlos al ADT
+
+            printProgressBar(j, 14266436); // << BORRAR
+            j++; // << BORRAR
+
             col=0;
             if(!isFirstRow){
                 token = strtok(line,";");
@@ -146,11 +172,12 @@ int main(int argc, char const *argv[])
         FILE * query2csv;
         query2csv = fopen("query2.csv","w");
         fprintf(query2csv,colNamesQ2[0],colNamesQ2[1],colNamesQ2[2]);
-        char timeStr[LEN_DATE_Q2 + 2];
+        char timeStr[LEN_DATE_Q2];
         struct tm * tmPtr;
+        char * formatQ2 = "%d/%m/%Y %H:%M";
         for(int i = 0; i < dimq2; i++){
             tmPtr = gmtime(&(query2[i].dateTime));
-            strftime(timeStr,sizeof(timeStr),"%d/%m/%Y %H:%M",tmPtr);
+            strftime(timeStr,sizeof(timeStr),formatQ2,tmPtr);
             addHTMLRow(tableForQ2,query2[i].stationFrom,query2[i].stationTo,timeStr);
             fprintf(query2csv,"%s;%s;%s\n",query2->stationFrom,query2->stationTo,timeStr);
         }

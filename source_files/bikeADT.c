@@ -90,10 +90,11 @@ static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim)
     }
 }
 
-static void strToTime(struct tm *d, char * date, char * format){
-    d->tm_isdst=0; // necesario para que funcione la libreria time.h
-    sscanf(date,format,&d->tm_year, &d->tm_mon, &d->tm_mday, &d->tm_hour, &d->tm_min, &d->tm_sec);
-    return;
+static struct tm strToTime(char * date, char * format){
+    struct tm d;
+    d.tm_isdst=-1; // necesario para que funcione la libreria time.h
+    sscanf(date,format,&d.tm_year - 1900, &d.tm_mon-1, &d.tm_mday, &d.tm_hour, &d.tm_min, &d.tm_sec);
+    return d;
 }
 
 /**
@@ -101,7 +102,7 @@ static void strToTime(struct tm *d, char * date, char * format){
  * @return 0 si ... 1 si ...
 */
 static int checkOldest(tStation * stationFrom, char * destName, time_t start){ 
-    if(difftime(start,stationFrom->oldest.dateTime) < 0){
+    if(stationFrom->oldest.stationTo == NULL || difftime(start,stationFrom->oldest.dateTime) < 0){
         stationFrom->oldest.dateTime = start;
         free(stationFrom->oldest.stationTo); // Free de NULL no pasa nada, (esta en NULL si es el primer trip de esa estación)
         stationFrom->oldest.stationTo = NULL;
@@ -134,13 +135,11 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
         return;
     }
     struct tm startDateTm, endDateTm;
-
-
-    strToTime(&startDateTm,startDateStr,"&d-&d-&d &d:&d:&d");
-    
+    char * formatDateInput =  "&d-&d-&d &d:&d:&d";
+    startDateTm = strToTime(startDateStr,formatDateInput);
     time_t startDate = mktime(&startDateTm);
 
-    strToTime(&endDateTm,endDateStr,"&d-&d-&d &d:&d:&d");
+    endDateTm = strToTime(endDateStr,formatDateInput);
     time_t endDate = mktime(&endDateTm);
     
     
@@ -200,8 +199,8 @@ static int ordenAlfabetico(const void* p, const void* q){
 
 struct oldestTrip * getOldestTrips(bikeADT bikes, int * dim){
     struct oldestTrip * retArray = malloc((bikes->stationCount) * sizeof(struct oldestTrip));
-    int howMany = bikes->stationCount;
-    for(int i = 0; i < (int)(bikes->stationCount); i++){
+    size_t howMany = bikes->stationCount;
+    for(size_t i = 0; i < bikes->stationCount; i++){
         if(bikes->stations[i].oldest.stationTo != NULL){
             errno = 0;    
             retArray[i].stationFrom = malloc(strlen(bikes->stations[i].name) + 1);
@@ -221,31 +220,26 @@ struct oldestTrip * getOldestTrips(bikeADT bikes, int * dim){
         }
     }
     errno = 0;
-    retArray = realloc(retArray,sizeof(struct oldestTrip)*(howMany+1));
+    retArray = realloc(retArray,howMany*sizeof(struct oldestTrip));
     if(checkErrno(retArray)){
-        return NULL;
+        puts("Error en el realloc");
     }
     *dim = howMany;
-    qsort(retArray,howMany,sizeof(retArray[0]),ordenAlfabetico);
+    //qsort(retArray,howMany,sizeof(retArray[0]),ordenAlfabetico);
     return retArray;
 }
 
 tDay * tripsPerDay(bikeADT bikes){
-    
     errno = 0;
     tDay * toReturn = malloc(NUM_DAYS*(sizeof(toReturn[0])));
     
     if(checkErrno(toReturn)){
         return NULL;
     }
-    
-    puts("QUERY 3:");
+
     for(int i=0;i<NUM_DAYS;i++){
         toReturn[i].started = bikes->days[i].started;
         toReturn[i].ended = bikes->days[i].ended;
-        // BORRAR >>
-        printf("day: %d -> started: %d / ended: %d\n", i, toReturn[i].started, toReturn[i].ended);
-        // <<
     }
 
     return toReturn;
