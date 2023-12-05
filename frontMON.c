@@ -112,18 +112,21 @@ int main(int argc, char const *argv[])
         puts("Se creó el query 1");
         htmlTable tableForQ1 = newTable("query1.html",COLS_QUERY_1,"bikeStation","memberTrips","casualTrips","allTrips");
         char table[CANT_COLS_STATIONS_CSV][MAXCHARS];
-
-        size_t total=0;
+        FILE * query1csv;
+        query1csv = fopen("query1.csv","w");
         for(int i = 0; i < stationsNum; i++){
             sprintf(table[0],"%s",query1[i].stationName);
             sprintf(table[1],"%ld",query1[i].memberTrips);
             sprintf(table[2],"%ld",query1[i].nonMemberTrips);
             sprintf(table[3],"%ld",query1[i].allTrips);
+            fprintf(query1csv,"%s;%s;%s;%s\n",table[0],table[1],table[2],table[3]);
             addHTMLRow(tableForQ1,table[0],table[1],table[2],table[3]);
         }
-        printf("%ld\n",total);
+        fprintf(query1csv,"\0");
+        fclose(query1csv);
         closeHTMLTable(tableForQ1);
         puts("Se creó el HTML del query 1");
+        
         struct oldestTrip * query2 = getOldestTrips(bikesMon);
         if(query2 == NULL){
             fprintf(stderr,"Error al realizar query 2\n");
