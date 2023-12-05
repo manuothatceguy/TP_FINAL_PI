@@ -11,11 +11,11 @@ SOURCES = $(wildcard $(SRCDIR)/*.c)
 OBJECTS = $(patsubst $(SRCDIR)/%.c, $(OBJDIR)/%.o, $(SOURCES))
 INCLUDES = -I$(INCDIR)
 
-all: mon nyc
+all: MON NYC
 
-mon: $(TARGET_MON)
+MON: $(TARGET_MON)
 
-nyc: $(TARGET_NYC)
+NYC: $(TARGET_NYC)
 
 $(TARGET_MON): $(OBJECTS) bikeSharingMON.c
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(TARGET_MON) $(OBJECTS) bikeSharingMON.c
