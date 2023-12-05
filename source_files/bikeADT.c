@@ -1,6 +1,7 @@
 #include "bikeADT.h"
 #include "checkErrno.h"
 #include <stdio.h>
+#include <strings.h>
 #include <stdlib.h>
 #include <string.h>
 
@@ -57,10 +58,8 @@ static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
             return NULL;
         }
         bikes->stations[i].name[len] = '\0';
-        bikes->stations[i].oldest.hasTrip = 0;
 
     }
-    printf("%d",i);
     qsort((void*)(bikes->stations), bikes->stationCount, sizeof(bikes->stations[0]), comparator); 
 
     return bikes;
@@ -92,7 +91,7 @@ static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim)
 }
 
 static void strToTime(struct tm *d, char * date, char * format){
-    d->tm_isdst=-1; // necesario para que funcione la libreria time.h
+    d->tm_isdst=0; // necesario para que funcione la libreria time.h
     sscanf(date,format,&d->tm_year, &d->tm_mon, &d->tm_mday, &d->tm_hour, &d->tm_min, &d->tm_sec);
     return;
 }
@@ -124,7 +123,6 @@ static int checkOldest(tStation * stationFrom, char * destName, time_t start){
             return 0;
         }
         stationFrom->oldest.stationTo[len] = '\0';
-        stationFrom->oldest.hasTrip = 1;
     }
     return 1;
 }
@@ -157,7 +155,6 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
     
     struct tm * ansEnd = gmtime(&endDate);
     bikes->days[ansEnd->tm_wday].ended++;
-    
     if(strcmp(foundStationFrom->name,foundStationTo->name) != 0){ // Si el viaje no es circular... 
         checkOldest(foundStationFrom,foundStationTo->name,startDate);
     }
@@ -169,7 +166,7 @@ static int tripOrder(const void* p, const void* q){
     int l = ((struct tripCounter*)p)->allTrips;
     int r = ((struct tripCounter*)q)->allTrips;
     if((r - l) == 0){
-        return strcmp(((struct tripCounter*)p)->stationName,((struct tripCounter*)q)->stationName);
+        return strcasecmp(((struct tripCounter*)p)->stationName,((struct tripCounter*)q)->stationName);
     }
     return (r - l);
 }
@@ -194,18 +191,42 @@ struct tripCounter * getTotalTrips(bikeADT bikes){
     return retArray;
 }
 
-struct oldestTrip * getOldestTrips(bikeADT bikes){
+static int ordenAlfabetico(const void* p, const void* q){
+    char * sp, * sq;
+    sp = ((struct oldestTrip*)p)->stationFrom;
+    sq = ((struct oldestTrip*)q)->stationFrom;
+    return strcasecmp(sp,sq);
+}
+
+struct oldestTrip * getOldestTrips(bikeADT bikes, int * dim){
     struct oldestTrip * retArray = malloc((bikes->stationCount) * sizeof(struct oldestTrip));
+    int howMany = bikes->stationCount;
     for(int i = 0; i < (int)(bikes->stationCount); i++){
-        retArray[i].stationFrom = malloc(strlen(bikes->stations[i].name) + 1);
-        strcpy(retArray[i].stationFrom,bikes->stations[i].name);
-        retArray[i].hasTrip = bikes->stations[i].oldest.hasTrip;
-        if(bikes->stations[i].oldest.hasTrip){    
+        if(bikes->stations[i].oldest.stationTo != NULL){
+            errno = 0;    
+            retArray[i].stationFrom = malloc(strlen(bikes->stations[i].name) + 1);
+            if(checkErrno(retArray[i].stationFrom)){
+                return NULL;
+            }   
+            strcpy(retArray[i].stationFrom,bikes->stations[i].name);
+            errno = 0;
             retArray[i].stationTo = malloc(strlen(bikes->stations[i].oldest.stationTo) + 1);
+            if(checkErrno(retArray[i].stationTo)){
+                return NULL;
+            }
             strcpy(retArray[i].stationTo,bikes->stations[i].oldest.stationTo);
             retArray[i].dateTime = bikes->stations[i].oldest.dateTime;
+        } else{
+            howMany--;
         }
     }
+    errno = 0;
+    retArray = realloc(retArray,sizeof(struct oldestTrip)*(howMany+1));
+    if(checkErrno(retArray)){
+        return NULL;
+    }
+    *dim = howMany;
+    qsort(retArray,howMany,sizeof(retArray[0]),ordenAlfabetico);
     return retArray;
 }
 
@@ -217,9 +238,14 @@ tDay * tripsPerDay(bikeADT bikes){
     if(checkErrno(toReturn)){
         return NULL;
     }
-
+    
+    puts("QUERY 3:");
     for(int i=0;i<NUM_DAYS;i++){
-        toReturn[i]=bikes->days[i];
+        toReturn[i].started = bikes->days[i].started;
+        toReturn[i].ended = bikes->days[i].ended;
+        // BORRAR >>
+        printf("day: %d -> started: %d / ended: %d\n", i, toReturn[i].started, toReturn[i].ended);
+        // <<
     }
 
     return toReturn;

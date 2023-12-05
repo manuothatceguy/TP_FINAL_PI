@@ -7,7 +7,7 @@
 
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESMON_CSV 5
-#define MAXCHARS 250 // Para el sprintf. Tope arbitrario.
+#define MAXCHARS 200 // Para el sprintf. Tope arbitrario.
 #define COLS_QUERY_1 4
 #define COLS_QUERY_2 3
 #define COLS_QUERY_3 3
@@ -47,18 +47,18 @@ int main(int argc, char const *argv[])
         puts("Estoy por arrancar a filtrar");
         char *** stationsFilter = toMatrix(stations,CANT_COLS_STATIONS_CSV,filtroStations,&stationsNum); 
         fclose(stations);
-        for(int i=0; i < stationsNum; i++){
-            for(int j = 0; j < COLS_STATIONS_FILTER; j++){
-                printf("%s\t", stationsFilter[i][j]);
-            }
-            puts("\n");
-        }
-        puts("Filtré");
+        puts("Filtré stations");
         stationInput * stns =  matrixToInput(stationsFilter,stationsNum);
-        freeMatrix(stationsFilter,stationsNum,COLS_STATIONS_FILTER);
+        freeMatrix(stationsFilter,996,COLS_STATIONS_FILTER);
+        
         puts("Creé el vector");
         bikeADT bikesMon = newBikeADT(stns,stationsNum);
-
+        
+        for(int i = 0; i < stationsNum; i++){
+            free(stns[i].name);
+        }
+        free(stns);
+        
         if(bikesMon == NULL){
             fprintf(stderr, "Error al crear TAD\n");
             return 3;
@@ -66,7 +66,7 @@ int main(int argc, char const *argv[])
 
         puts("Se creó el TAD vacío");
 
-        // Agregar viajes
+        puts("Procesando viajes");
         char line[MAXCHARS];
         char * token;
         char startDate[MAXCHARS];
@@ -76,7 +76,7 @@ int main(int argc, char const *argv[])
         int idEnd;
         char member;
 
-        while((fgets(line,MAXCHARS,bikes))){
+        while((fgets(line,MAXCHARS,bikes))){ // preparamos los datos para luego ingresarlos al ADT
             col=0;
             if(!isFirstRow){
                 token = strtok(line,";");
@@ -134,8 +134,8 @@ int main(int argc, char const *argv[])
             free(query1[i].stationName);
         }
         free(query1);
-
-        struct oldestTrip * query2 = getOldestTrips(bikesMon);
+        int dimq2;
+        struct oldestTrip * query2 = getOldestTrips(bikesMon,&dimq2);
         if(query2 == NULL){
             fprintf(stderr,"Error al realizar query 2\n");
             return 5;
@@ -146,35 +146,50 @@ int main(int argc, char const *argv[])
         FILE * query2csv;
         query2csv = fopen("query2.csv","w");
         fprintf(query2csv,colNamesQ2[0],colNamesQ2[1],colNamesQ2[2]);
-        struct tm * time;
-        char timeStr[LEN_DATE_Q2];
-        for(int i = 0; i < stationsNum; i++){
-            time = gmtime(&query2[i].dateTime);
-            strftime(timeStr,LEN_DATE_Q2,"%d/%m/%Y %H:%M",time);
+        char timeStr[LEN_DATE_Q2 + 2];
+        struct tm * tmPtr;
+        for(int i = 0; i < dimq2; i++){
+            tmPtr = gmtime(&(query2[i].dateTime));
+            strftime(timeStr,sizeof(timeStr),"%d/%m/%Y %H:%M",tmPtr);
             addHTMLRow(tableForQ2,query2[i].stationFrom,query2[i].stationTo,timeStr);
             fprintf(query2csv,"%s;%s;%s\n",query2->stationFrom,query2->stationTo,timeStr);
         }
         closeHTMLTable(tableForQ2);
+        fprintf(query2csv,"%c",'\0');
         fclose(query2csv);
-        puts("Se creó el HTML del query 2");
+        for(int i = 0; i < dimq2; i++){
+            free(query2[i].stationFrom);
+            free(query2[i].stationTo);
+        }
+        free(query2);
+        puts("Se creó el HTML y el CSV del query 2");
+        
         tDay * query3 = tripsPerDay(bikesMon);
         if(query3 == NULL){
             fprintf(stderr,"Error al realizar query 3\n");
             return 6;
         }
         puts("Se creó el query 3");
-        htmlTable tableForQ3 = newTable("query3.html",COLS_QUERY_3,"weekDay","startedTrips","endedTrips");
+        char * colsQuery3CSV[] = {"weekDay","startedTrips","endedTrips"};
+        htmlTable tableForQ3 = newTable("query3.html",COLS_QUERY_3,colsQuery3CSV[0],colsQuery3CSV[1],colsQuery3CSV[2]);
+        FILE * query3csv;
+        query3csv = fopen("query3.csv","w");
         char * days[DAYS_IN_WEEK] = {"Monday","Tuesday","Wednesday","Thursday","Friday","Saturday","Sunday"};
+        fprintf(query3csv,"%s;%s;%s\n",colsQuery3CSV[0],colsQuery3CSV[1],colsQuery3CSV[2]);
         for(int i = 0; i < DAYS_IN_WEEK; i++){
             char started[MAXCHARS] = {0};
             char ended[MAXCHARS] = {0};
             sprintf(started,"%ld",query3[CONVERSION(i)].started);
             sprintf(ended,"%ld",query3[CONVERSION(i)].ended);
             addHTMLRow(tableForQ3,days[i],started,ended);
+            fprintf(query3csv,"%s;%ld;%ld",days[i],query3[i].started,query3[i].ended);
         }
-        puts("Se creó el HTML del query 3");
+        fprintf(query3csv,"%c",'\0');
+        fclose(query3csv);
+        puts("Se creó el HTML y CSV del query 3");
         closeHTMLTable(tableForQ3);
         freeBikes(bikesMon);
+        free(query3);
 
         puts("Memoria liberada");
     }
@@ -191,10 +206,10 @@ stationInput * matrixToInput(char ***stations, int num){
     }
     for(int i = 0; i < num; i++){
         retArray[i].stationID = atol(stations[i][ID]);
-          errno = 0;
-         retArray[i].name = malloc(sizeof(char) * (strlen(stations[i][NAME]) + 1));
-         if(checkErrno(retArray[i].name)){
-             return NULL;
+        errno = 0;
+        retArray[i].name = malloc(sizeof(char) * (strlen(stations[i][NAME]) + 1));
+        if(checkErrno(retArray[i].name)){
+            return NULL;
         }
         strcpy(retArray[i].name,stations[i][NAME]);
     }

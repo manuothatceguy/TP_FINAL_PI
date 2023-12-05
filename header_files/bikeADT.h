@@ -62,15 +62,15 @@ struct oldestTrip{
     char * stationFrom;
     char * stationTo;   // Nombre de la estación de llegada
     time_t dateTime;    // Tiempo de salida. Después se convierte con gmtime() 
-    char hasTrip;       // Si no hay viajes desde la estación, este valor es 0
 };
 
 /**
  * QUERY 2
  * @param bikes TAD creado previamente
+ * @param dim de salida para la cantidad de elementos
  * @return vector de struct oldestTrip o NULL si fallo
 */
-struct oldestTrip * getOldestTrips(bikeADT bikes);
+struct oldestTrip * getOldestTrips(bikeADT bikes, int * dim);
 
 typedef struct day{
     size_t started;     // Cantidad de viajes iniciados en este día
