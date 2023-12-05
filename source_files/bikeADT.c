@@ -164,8 +164,13 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
     return;
 }
 
-static int tripOrder(struct tripCounter t1, struct tripCounter t2){
-    return ((int)t1.allTrips - (int)t2.allTrips);
+static int tripOrder(const void* p, const void* q){
+    int l = ((struct tripCounter*)p)->allTrips;
+    int r = ((struct tripCounter*)q)->allTrips;
+    if((r - l) == 0){
+        return strcmp(((struct tripCounter*)p)->stationName,((struct tripCounter*)q)->stationName);
+    }
+    return (r - l);
 }
 
 struct tripCounter * getTotalTrips(bikeADT bikes){
@@ -184,7 +189,7 @@ struct tripCounter * getTotalTrips(bikeADT bikes){
         }
         strcpy(retArray[i].stationName, bikes->stations[i].name);
     }
-    //qsort(retArray,sizeof(struct tripCounter),bikes->stationCount,((int(*) (const void *, const void *))tripOrder));
+    qsort((void*)retArray,bikes->stationCount,sizeof(retArray[0]),tripOrder);
     return retArray;
 }
 
