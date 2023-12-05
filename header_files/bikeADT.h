@@ -62,6 +62,7 @@ struct oldestTrip{
     char * stationFrom;
     char * stationTo;   // Nombre de la estación de llegada
     time_t dateTime;    // Tiempo de salida. Después se convierte con gmtime() 
+    char hasTrip;       // Si no hay viajes desde la estación, este valor es 0
 };
 
 /**

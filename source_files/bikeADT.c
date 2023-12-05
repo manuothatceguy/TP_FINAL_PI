@@ -57,6 +57,7 @@ static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
             return NULL;
         }
         bikes->stations[i].name[len] = '\0';
+        bikes->stations[i].oldest.hasTrip = 0;
 
     }
     printf("%d",i);
@@ -123,6 +124,7 @@ static int checkOldest(tStation * stationFrom, char * destName, time_t start){
             return 0;
         }
         stationFrom->oldest.stationTo[len] = '\0';
+        stationFrom->oldest.hasTrip = 1;
     }
     return 1;
 }
@@ -197,14 +199,12 @@ struct oldestTrip * getOldestTrips(bikeADT bikes){
     for(int i = 0; i < (int)(bikes->stationCount); i++){
         retArray[i].stationFrom = malloc(strlen(bikes->stations[i].name) + 1);
         strcpy(retArray[i].stationFrom,bikes->stations[i].name);
-        if(bikes->stations[i].memberTripCount != 0 || bikes->stations[i].notMemberTripCount != 0){    
+        retArray[i].hasTrip = bikes->stations[i].oldest.hasTrip;
+        if(bikes->stations[i].oldest.hasTrip){    
             retArray[i].stationTo = malloc(strlen(bikes->stations[i].oldest.stationTo) + 1);
             strcpy(retArray[i].stationTo,bikes->stations[i].oldest.stationTo);
             retArray[i].dateTime = bikes->stations[i].oldest.dateTime;
-        } else{
-            retArray[i].stationTo = malloc();
         }
-
     }
     return retArray;
 }
