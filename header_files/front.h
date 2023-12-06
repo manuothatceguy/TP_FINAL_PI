@@ -9,7 +9,7 @@
  * ARCHIVO DE ENCABEZADO PARA LOS ARCHIVOS "bikeSharingMON.c" y "bikeSharingNYC.c"
 */
 
-#define MAXCHARS 200 // Para el sprintf. Tope arbitrario.
+#define MAXCHARS 200                // Para el sprintf. Tope arbitrario.
 #define COLS_QUERY_1 4
 #define COLS_QUERY_2 3
 #define COLS_QUERY_3 3

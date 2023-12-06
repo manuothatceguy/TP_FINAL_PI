@@ -14,6 +14,8 @@ Consta de un programa para procesar datos de alquileres de bicicletas para dos c
 | Gregorio Tiscornia | 64087 |
 
 ## Compilación con Makefile
+> Flags incluidas en la compilación: -Wall -pedantic -std=c99 -fsanitize=address
+
 - Para generar solo el ejecutable de Montreal:
 ```
 make MON
@@ -26,7 +28,7 @@ make NYC
 ```
 make all
 ```
-- Para borrar los ejecutables y archivos generados (recomendable correr este comando antes de arrancar con el make)
+- Para borrar los ejecutables (del tipo .o) y archivos generados (del tipo query(NUM).html y query(NUM).csv)
 ```
 make clean
 ```
@@ -35,17 +37,17 @@ make clean
 Una vez compilado, se debe ejecutar de la siguiente manera:
 
 ```
-make clean && make (CIUDAD) && ./bikeSharing(CIUDAD) (path de bikes(CIUDAD).csv) (path de stations(CIUDAD).csv)
+./bikeSharing(CIUDAD) (path de bikes(CIUDAD).csv) (path de stations(CIUDAD).csv)
 ```
 
 Siendo (CIUDAD) una de las siguientes opciones:
 - MON
 - NYC
 
-Los archivos producidos por los ejecutables serán generados en la misma carpeta que los mismos.
+Los archivos producidos por los ejecutables se guardarán en la misma carpeta que los mismos.
 
 ### IMPORTANTE
-Si se escribe MON, se esperan archivos con la estructura (pero no el contenido) definida en la consigna que le corresponden a Montreal, vale lo mismo para Nueva York.
+Si se escribe MON, se esperan archivos con la estructura (pero no el contenido) definida en el enunciado que le corresponden a Montreal, vale lo mismo para Nueva York.
 
 Es decir:
 
