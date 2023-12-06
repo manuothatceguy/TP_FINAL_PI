@@ -152,10 +152,9 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
         foundStationFrom->notMemberTripCount++;
     }
 
-    struct tm * ansStart = gmtime(&startDate); //completa los campos tm_wday y tm_yday no completados en el original
+    struct tm * ansStart = localtime(&startDate); //completa los campos tm_wday y tm_yday no completados en el original
     bikes->days[ansStart->tm_wday].started++; // para el QUERY 3
-    
-    struct tm * ansEnd = gmtime(&endDate);
+    struct tm * ansEnd = localtime(&endDate);
     bikes->days[ansEnd->tm_wday].ended++;
     if(strcmp(foundStationFrom->name,foundStationTo->name) != 0){ // Si el viaje no es circular... 
         checkOldest(foundStationFrom,foundStationTo->name,startDate);

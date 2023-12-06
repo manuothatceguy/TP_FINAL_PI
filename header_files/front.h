@@ -11,7 +11,7 @@
 #define COLS_QUERY_3 3
 #define DAYS_IN_WEEK 7
 #define BLOCK 10
-#define CONVERSION(x) (((x)+6)%7)  // Debido al formato del time.h para que el primero sea el LUNES
+#define CONVERSION(x) (((x)+1)%7)  // Debido al formato del time.h para que el primero sea el LUNES
 #define LEN_DATE_Q2 17 // El formato de fecha que se retorna en el query 2 tiene una longitud de 17 caracteres 
 
 /**
