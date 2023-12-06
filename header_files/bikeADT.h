@@ -1,5 +1,5 @@
 /**
- * ARCHIVO DE ENCABEZADO PARA EL TIPO ABSTRACTO DE DATO 
+ * ARCHIVO DE ENCABEZADO PARA EL ADT 
  * PARA PROCESAR DATOS DE ALQUILERES DE BICICLETAS
  * 
  * Autores: Manuel Othatceguy 64671, 
@@ -46,10 +46,7 @@ struct tripCounter{
     size_t allTrips;
 };
 
-/**
- * @return cantidad de stations guardadas
-*/
-size_t getTotalStations(bikeADT bikes);
+
 
 /**
  * QUERY 1
@@ -83,6 +80,11 @@ typedef struct day{
  * @return vector de 7 tDay con idx 0 = DOMINGO
 */
 tDay * tripsPerDay(bikeADT bikes);
+
+/**
+ * @return cantidad de stations guardadas
+*/
+size_t getTotalStations(bikeADT bikes);
 
 /**
  * @param bikes TAD a liberar

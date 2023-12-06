@@ -6,6 +6,7 @@
 
 /**
 **  Implementación reducida de una biblioteca de funciones para manipular archivos csv en C
+**  Solo incluye las funciones toMatrix y freeMatrix.
 */
 
 /**
