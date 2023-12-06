@@ -136,7 +136,7 @@ int main(int argc, char const *argv[])
         struct tm * tmPtr;
         char * formatQ2 = "%d/%m/%Y %H:%M";
         for(int i = 0; i < dimq2; i++){
-            tmPtr = gmtime(&(query2[i].dateTime));
+            tmPtr = localtime(&(query2[i].dateTime));
             strftime(timeStr,sizeof(timeStr),formatQ2,tmPtr);
             addHTMLRow(tableForQ2,query2[i].stationFrom,query2[i].stationTo,timeStr);
             fprintf(query2csv,"%s;%s;%s\n",query2[i].stationFrom,query2[i].stationTo,timeStr);
