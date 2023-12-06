@@ -24,7 +24,7 @@ $(TARGET_NYC): $(OBJECTS) bikeSharingNYC.c
 	$(CC) $(CFLAGS) $(INCLUDES) -o $(TARGET_NYC) $(OBJECTS) bikeSharingNYC.c
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
-	mkdir -p $(OBJDIR)
+	mkdir $(OBJDIR)
 	$(CC) $(CFLAGS) $(INCLUDES) -c $< -o $@
 
 clean:
