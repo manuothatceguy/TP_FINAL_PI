@@ -1,0 +1,3 @@
+started_at;start_station_id;ended_at;end_station_id;rideable_type;member_casual
+2023-12-03 08:30:04.000000;3;2023-12-04 12:23:44.000000;2;auto;member
+2023-12-02 04:35:25.000000;3;2023-12-05 12:44:22.000000;2;motoneta;casual
