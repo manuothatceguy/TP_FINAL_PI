@@ -2,9 +2,7 @@
 
 #define CANT_COLS_STATIONS_CSV 4
 #define CANT_COLS_BIKESNYC_CSV 6
-
-#define COLS_STATIONS_FILTER 2
-#define COLS_BIKES_FILTER 5
+#define COLS_BETWEEN 2
 
 
 enum posInCsv {START_DATE = 0, ID_START, END_DATE, ID_END, RIDE_TYPE, MEMBER_STATUS};
@@ -31,19 +29,44 @@ int main(int argc, char const *argv[])
         fprintf(stderr, "Error al abrir archivos\n");
         return 2;
     }    
+    char line[MAXCHARS];
+    char * token;
+    stationInput * stns = NULL;
+    int stationNbr;
 
-    char filtroStations[] = {1,0,0,1};
-    unsigned int stationsNum = 0;
-
-    char *** stationsFilter = toMatrix(stations,CANT_COLS_STATIONS_CSV,filtroStations,&stationsNum); 
+    
+    fgets(line,MAXCHARS,stations); // Para descartar los valores de la fila con los encabezados
+    for(stationNbr = 0; fgets(line,MAXCHARS,stations) != NULL; stationNbr++){
+        if(stationNbr % BLOCK == 0){
+            errno = 0;
+            stns = realloc(stns,(stationNbr + BLOCK)*sizeof(stationInput));
+            if(checkErrno(stns)){
+                fprintf(stderr, "Error al cargar las estaciones");
+                return 5;
+            }
+        }
+        token = strtok(line,";");
+        errno = 0;     
+        stns[stationNbr].name = malloc(strlen(token)+1);
+        if(checkErrno(stns[stationNbr].name)){
+            fprintf(stderr, "Error al cargar nombre de estacion");
+            return 5;
+        }
+        strcpy(stns[stationNbr].name,token);
+        for(int i = 0; i <= COLS_BETWEEN; i++){  // De este modo se saltean las columnas 1 y 2
+            token = strtok(NULL,";");
+        }
+        stns[stationNbr].stationID = atol(token);
+    }
+    errno = 0;
+    stns = realloc(stns,stationNbr*sizeof(stationInput));
+    if(checkErrno(stns)){
+        return 5;
+    }
     fclose(stations);
+    bikeADT bikesNYC = newBikeADT(stns,stationNbr);
 
-    stationInput * stns =  matrixToInput(stationsFilter,stationsNum, ID, NAME);
-    freeMatrix(stationsFilter,stationsNum,COLS_STATIONS_FILTER);
-
-    bikeADT bikesNYC = newBikeADT(stns,stationsNum);
-
-    for(int i = 0; i < stationsNum; i++){
+    for(int i = 0; i < stationNbr; i++){
         free(stns[i].name);
     }
     free(stns);
@@ -53,15 +76,13 @@ int main(int argc, char const *argv[])
         return 3;
     }
 
-    char line[MAXCHARS];
-    char * token;
     char startDate[MAXCHARS];
     char endDate[MAXCHARS];
     int isFirstRow = 1, col;
     int idStart;
     int idEnd;
     char member;
-
+    token = NULL;
         while((fgets(line,MAXCHARS,bikes))){ // preparamos los datos para luego ingresarlos al ADT
             col=0;
             if(!isFirstRow){
@@ -104,7 +125,7 @@ int main(int argc, char const *argv[])
         FILE * query1csv;
         query1csv = fopen("query1.csv","w");
         fprintf(query1csv,"%s;%s;%s;%s\n",colNamesQ1[0],colNamesQ1[1],colNamesQ1[2],colNamesQ1[3]);
-        for(int i = 0; i < stationsNum; i++){
+        for(int i = 0; i < stationNbr; i++){
             sprintf(table[0],"%s",query1[i].stationName);
             sprintf(table[1],"%ld",query1[i].memberTrips);
             sprintf(table[2],"%ld",query1[i].nonMemberTrips);
@@ -180,5 +201,5 @@ int main(int argc, char const *argv[])
 }
 
 char isMemberNYC(char * status){
-    return (strcmp("member\n",status) == 0); // Ya que fgets lee hasta '/n' (pues "member_casual" es la ultima columna)
+    return (status[0] == 'm'); // Asumiendo que a la "m" le sigue "ember"
 }

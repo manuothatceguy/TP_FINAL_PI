@@ -57,3 +57,11 @@ Es decir:
 | stationsMON.csv | pk;name;latitude;longitude |
 | bikesNYC.csv | started_at;start_station_id;ended_at;end_station__id;rideable_type;member_casual |
 | stationsNYC.csv | station_name;latitude;longitude;id |
+
+### Sobre la carpeta "archivos_test"
+Incluimos los archivos `.csv` que armamos nosotros para poder verificar nuestros resultados, dado que varios de los archivos son casi imposibles de manipular en software de hoja de cálculo o base de datos por su gran extensión. Para eso, los archivos que incluimos tienen la misma información para ambas estructuras de ciudad (MON o NYC):
+
+- El archivo bikes tiene 2 viajes
+- El archivo stations tiene 9 estaciones
+
+Se espera que haya 2 viajes saliendo de la estación "Obelisco", uno de "member" y otro de "casual". Además, esos viajes deben salir un sábado y un domingo, para así llegar un martes y un lunes, respectivamente.

@@ -1,7 +1,7 @@
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 #include "bikeADT.h" 
-#include "csvTools.h"  
 #include "htmlTable.h"
 #include "checkErrno.h"
 
@@ -17,9 +17,3 @@
 #define BLOCK 10
 #define CONVERSION(x) (((x)+1)%7)   // Debido al formato del time.h para que el primero sea el LUNES
 #define LEN_DATE_Q2 17              // El formato de fecha que se retorna en el query 2 tiene una longitud de 17 caracteres 
-
-/**
- * Función que recibe una matriz con nombre de estación y id que retorna en su nombre un arreglo de "num" stationInput
-*/
-stationInput * matrixToInput(char ***stations, int num, int id_pos, int name_pos);
-

@@ -11,10 +11,9 @@
 
 typedef struct station{
     char * name;                // Nombre de la estación
-    int id;                  // Id de la estación
+    int id;                     // Id de la estación
 
     struct oldestTrip oldest;
-    // TList trips;                // Lista de viajes con origen en esta estación ordenados cronologicamente
     size_t memberTripCount;     // Cantidad de viajes de usuarios que son miembros con origen en esta estación
     size_t notMemberTripCount;  // Cantidad de viajes de usuarios que no son miembros con origen en esta estación
 } tStation;
@@ -33,7 +32,11 @@ static int comparator(const void* p, const void* q)
 }
 
 static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
+    errno = 0;
     bikes->stations = calloc(num,sizeof(tStation));
+    if(checkErrno(bikes->stations)){
+        return NULL;
+    }
     bikes->stationCount = num;
     int len;
     int i ;
@@ -159,7 +162,6 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
     if(strcmp(foundStationFrom->name,foundStationTo->name) != 0){ // Si el viaje no es circular... 
         checkOldest(foundStationFrom,foundStationTo->name,startDate);
     }
-
     return;
 }
 
