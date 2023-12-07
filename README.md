@@ -65,3 +65,5 @@ Incluimos los archivos `.csv` que armamos nosotros para poder verificar nuestros
 - El archivo stations tiene 9 estaciones
 
 Se espera que haya 2 viajes saliendo de la estación "Obelisco", uno de "member" y otro de "casual". Además, esos viajes deben salir un sábado y un domingo, para así llegar un martes y un lunes, respectivamente.
+
+Probando los ejecutables, se obtuvieron los resultados esperados.
