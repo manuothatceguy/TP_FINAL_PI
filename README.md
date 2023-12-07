@@ -28,7 +28,7 @@ make NYC
 ```
 make all
 ```
-- Para borrar los ejecutables (del tipo .o) y archivos generados (del tipo query(NUM).html y query(NUM).csv)
+- Para borrar los ejecutables (de tipo .o) y archivos generados (de tipo query(NUM).html y query(NUM).csv)
 ```
 make clean
 ```
