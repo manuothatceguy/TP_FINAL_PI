@@ -8,6 +8,7 @@
  * 
  * Ejemplo de uso:
  * 
+ * errno = 0;
  * ptr = alloc(asignación de memoria en el heap);
  * if(checkErrno(ptr)){
  *      // Que hacer si falla la asignación de memoria con la función de la familia alloc
