@@ -105,7 +105,7 @@ struct tm parseFecha(const char *fechaStr){
 
 /**
  * Solo agrega si start es menor estricto al tiempo guardado en stationFrom
- * @return 0 si ... 1 si ...
+ * @return 0 si hubo algún fallo de memoria, 1 si no hubo fallos 
 */
 static int checkOldest(tStation * stationFrom, char * destName, time_t start){ 
     if(stationFrom->oldest.stationTo == NULL || difftime(start,stationFrom->oldest.dateTime) < 0){
@@ -147,7 +147,6 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
 
     endDateTm = parseFecha(endDateStr);
     time_t endDate = mktime(&endDateTm);
-    
     
     if( isMember ){
         foundStationFrom->memberTripCount++;
