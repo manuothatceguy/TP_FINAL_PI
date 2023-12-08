@@ -58,7 +58,7 @@ struct tripCounter * getTotalTrips(bikeADT bikes);
 struct oldestTrip{
     char * stationFrom;
     char * stationTo;   // Nombre de la estación de llegada
-    time_t dateTime;    // Tiempo de salida. Después se convierte con gmtime() 
+    time_t dateTime;    // Tiempo de salida. Después se convierte con localtime() 
 };
 
 /**

@@ -104,7 +104,7 @@ struct tm parseFecha(const char *fechaStr){
 }
 
 /**
- * Solo agrega si start es menor estricto al tiempo guardado en stationFrom
+ * Solo agrega si start es menor estricto al tiempo guardado en stationFrom o si no existe estación destino
  * @return 0 si hubo algún fallo de memoria, 1 si no hubo fallos 
 */
 static int checkOldest(tStation * stationFrom, char * destName, time_t start){ 
@@ -164,6 +164,10 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
     return;
 }
 
+/**
+ * Función para ordenar el arreglo que retorna la función getTotalTrips.
+ * Orden descendiente por allTrips y ascendiente alfabético en caso de igual num. de alltrips
+*/
 static int tripOrder(const void* p, const void* q){
     int l = ((struct tripCounter*)p)->allTrips;
     int r = ((struct tripCounter*)q)->allTrips;
@@ -234,7 +238,7 @@ struct oldestTrip * getOldestTrips(bikeADT bikes, int * dim){
 
 tDay * tripsPerDay(bikeADT bikes){
     errno = 0;
-    tDay * toReturn = malloc(NUM_DAYS*(sizeof(toReturn[0])));
+    tDay * toReturn = malloc(NUM_DAYS*(sizeof(tDay)));
     
     if(checkErrno(toReturn)){
         return NULL;
