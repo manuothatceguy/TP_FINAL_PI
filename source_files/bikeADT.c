@@ -9,11 +9,16 @@
 #define NUM_DAYS 7
 #define BLOCK 10
 
+struct oldestTripCDT{   // Difiere de structl oldestTrip del .h por un puntero a null (que dentro del ADT es redundante, pero para retornar es necesario)
+    char * stationTo;   // Nombre de la estación de llegada
+    time_t dateTime;    // Tiempo de salida. Después se convierte con localtime() 
+};
+
 typedef struct station{
     char * name;                // Nombre de la estación
     int id;                     // Id de la estación
 
-    struct oldestTrip oldest;
+    struct oldestTripCDT oldest; // Viaje mas antiguo de la estación
     size_t memberTripCount;     // Cantidad de viajes de usuarios que son miembros con origen en esta estación
     size_t notMemberTripCount;  // Cantidad de viajes de usuarios que no son miembros con origen en esta estación
 } tStation;
@@ -24,18 +29,18 @@ typedef struct bikeCDT{
     tDay days[NUM_DAYS];    // Vector de struct day 
 } bikeCDT;
 
-static int comparator(const void* p, const void* q)
+static int idComparator(const void* p, const void* q) // Se hace el casteo adentro de la función para no castear el pFun en qsort
 {
    int l = ((tStation*)p)->id;
    int r = ((tStation*)q)->id;
    return (l - r);
 }
 
-static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
+static void addStations(bikeADT bikes, stationInput * stations, size_t num){
     errno = 0;
     bikes->stations = calloc(num,sizeof(tStation));
     if(checkErrno(bikes->stations)){
-        return NULL;
+        return;
     }
     bikes->stationCount = num;
     int len;
@@ -48,7 +53,7 @@ static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
                 errno = 0;
                 bikes->stations[i].name = realloc(bikes->stations[i].name,sizeof(char)*(len + BLOCK));
                 if(checkErrno(bikes->stations[i].name)){
-                    return NULL;
+                    return;
                 }
             }
             bikes->stations[i].name[len] = stations[i].name[len];
@@ -57,19 +62,19 @@ static bikeADT addStations(bikeADT bikes, stationInput * stations, size_t num){
         errno = 0;
         bikes->stations[i].name = realloc(bikes->stations[i].name,(len+1)*sizeof(char));
         if(checkErrno(bikes->stations[i].name)){
-            return NULL;
+            return;
         }
         bikes->stations[i].name[len] = '\0';
 
     }
-    qsort((void*)(bikes->stations), bikes->stationCount, sizeof(bikes->stations[0]), comparator); 
-
-    return bikes;
+    qsort((void*)(bikes->stations), bikes->stationCount, sizeof(bikes->stations[0]), idComparator); 
+    return;
 }
 
 bikeADT newBikeADT(stationInput * stations, size_t numOfStations){
     bikeADT new = calloc(1,sizeof(bikeCDT));
-    return addStations(new,stations,numOfStations);
+    addStations(new,stations,numOfStations);
+    return new;
 }
 
 /**
@@ -92,7 +97,7 @@ static tStation * binarySearch(tStation * stations, unsigned int id, size_t dim)
     }
 }
 
-struct tm parseFecha(const char *fechaStr){
+static struct tm strToTm(const char *fechaStr){
     struct tm fechaTm = {0};  // Inicializar el struct tm en 0
     sscanf(fechaStr, "%d-%d-%d %d:%d:%d", &fechaTm.tm_year, &fechaTm.tm_mon, &fechaTm.tm_mday, 
            &fechaTm.tm_hour, &fechaTm.tm_min, &fechaTm.tm_sec);
@@ -134,7 +139,7 @@ static int checkOldest(tStation * stationFrom, char * destName, time_t start){
     return 1;
 }
 
-void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDateStr, char * endDateStr, char isMember){
+void addTrip(bikeADT bikes, int stationFrom, int stationTo, char * startDateStr, char * endDateStr, char isMember){
     tStation * foundStationFrom = binarySearch(bikes->stations, stationFrom, bikes->stationCount);
     tStation * foundStationTo = binarySearch(bikes->stations, stationTo, bikes->stationCount);
     if(foundStationFrom == NULL || foundStationTo == NULL ){
@@ -142,10 +147,10 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
     }
     struct tm startDateTm, endDateTm;
     
-    startDateTm = parseFecha(startDateStr);
+    startDateTm = strToTm(startDateStr); 
     time_t startDate = mktime(&startDateTm);
 
-    endDateTm = parseFecha(endDateStr);
+    endDateTm = strToTm(endDateStr); 
     time_t endDate = mktime(&endDateTm);
     
     if( isMember ){
@@ -154,11 +159,11 @@ void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, ch
         foundStationFrom->notMemberTripCount++;
     }
 
-    struct tm * ansStart = localtime(&startDate); //completa los campos tm_wday y tm_yday no completados en el original
-    bikes->days[ansStart->tm_wday].started++; // para el QUERY 3
+    struct tm * ansStart = localtime(&startDate);   //completa los campos tm_wday y tm_yday no completados en el original
+    bikes->days[ansStart->tm_wday].started++;       // para el QUERY 3
     struct tm * ansEnd = localtime(&endDate);
     bikes->days[ansEnd->tm_wday].ended++;
-    if(strcmp(foundStationFrom->name,foundStationTo->name) != 0){ // Si el viaje no es circular... 
+    if(stationFrom != stationTo){                   // Si el viaje no es circular... 
         checkOldest(foundStationFrom,foundStationTo->name,startDate);
     }
     return;
@@ -227,7 +232,7 @@ struct oldestTrip * getOldestTrips(bikeADT bikes, int * dim){
         }
     }
     errno = 0;
-    retArray = realloc(retArray,(howMany + 1)*sizeof(struct oldestTrip));
+    retArray = realloc(retArray,(howMany)*sizeof(struct oldestTrip));
     if(checkErrno(retArray)){
         return NULL;
     }

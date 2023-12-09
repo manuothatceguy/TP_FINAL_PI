@@ -37,7 +37,7 @@ bikeADT newBikeADT(stationInput * stations, size_t numOfStations); // recibe un 
  * @return 1 si se agregó, 0 si no se agregó
  * @brief Agrega un viaje, si alguna de las estaciones no existe las agrega. Se espera que se utilice esta función para la carga masiva de datos.
 */
-void addTrip(bikeADT bikes, unsigned int stationFrom, unsigned int stationTo, char * startDate, char * endDate, char isMember);
+void addTrip(bikeADT bikes, int stationFrom, int stationTo, char * startDate, char * endDate, char isMember);
 
 struct tripCounter{
     char * stationName;
